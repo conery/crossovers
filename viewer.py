@@ -41,18 +41,25 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         """
         super(PeakViewerApp, self).__init__(**params)
 
+        self.size_range = pn.widgets.IntSlider(
+            name = 'Min Block Size (#SNPs)',
+            start = 0,
+            end = 10,
+            value = 0,
+        )
+
         self.length_range = pn.widgets.IntRangeSlider(
             name = 'Block Length (bp)',
-            start = 100,
+            start = 0,
             end = 10000,
             step = 10,
-            value = (100,1000),
+            value = (0,10000),
         )
 
         self.coverage = pn.widgets.IntSlider(
             name = 'Minimum Coverage',
             start = 0,
-            end = 100,
+            end = 10,
             value = 0
         )
 
