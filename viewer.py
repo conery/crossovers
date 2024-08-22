@@ -31,6 +31,67 @@ def init_cli():
 
     return parser.parse_args()
 
+class BlockSizeFilter(pn.widgets.IntRangeSlider):
+    def __init__(self):
+        super(BlockSizeFilter,self).__init__(
+            name = 'Block Size (#SNPs)',
+            start = 0,
+            end = 100,
+        )
+        self.value = (self.start, self.end)
+
+    def filter(self, df):
+        print('block size filter')
+
+class BlockLengthFilter(pn.widgets.IntRangeSlider):
+    def __init__(self):
+        super(BlockLengthFilter,self).__init__(
+            name = 'Block Length (bp)',
+            start = 0,
+            end = 10000,
+            step = 10,
+        )
+        self.value = (self.start, self.end)            
+
+    def filter(self, df):
+        print('block length filter')
+
+class CoverageFilter(pn.widgets.IntSlider):
+    def __init__(self):
+        super(CoverageFilter,self).__init__(
+            name = 'Minimum Coverage',
+            start = 0,
+            end = 10,
+        )
+        self.value = self.start
+
+    def filter(self, df):
+        print('coverage filter')
+
+class SupportFilter(pn.widgets.Checkbox):
+    def __init__(self):
+        super(SupportFilter,self).__init__(
+            name = 'Genome Match',
+        )
+
+    def filter(self, df):
+        print('support filter')
+
+class SNPFilter(pn.Column):
+
+    def __init__(self):
+        super(SNPFilter, self).__init__()
+        self.widgets = [cls() for cls in [BlockSizeFilter, BlockLengthFilter, CoverageFilter, SupportFilter]]
+        self.append(pn.pane.HTML("<h3>Filters</h3>"))
+        self.extend(self.widgets)
+
+    def widgets(self):
+        return self.widgets
+
+    def apply(self, df):
+        for w in self.widgets:
+            w.filter(df)
+
 class PeakViewerApp(pn.template.BootstrapTemplate):
     def __init__(self, **params):
         """
@@ -41,31 +102,9 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         """
         super(PeakViewerApp, self).__init__(**params)
 
-        self.size_range = pn.widgets.IntSlider(
-            name = 'Min Block Size (#SNPs)',
-            start = 0,
-            end = 10,
-            value = 0,
-        )
-
-        self.length_range = pn.widgets.IntRangeSlider(
-            name = 'Block Length (bp)',
-            start = 0,
-            end = 10000,
-            step = 10,
-            value = (0,10000),
-        )
-
-        self.coverage = pn.widgets.IntSlider(
-            name = 'Minimum Coverage',
-            start = 0,
-            end = 10,
-            value = 0
-        )
-
-        self.supported = pn.widgets.Checkbox(
-            name = 'Genome Match',
-        )
+        self.filter = SNPFilter()
+        for w in self.filter.widgets:
+            w.param.watch(self.filter_cb, ['value'])
 
         button_style_sheet = ''':host(.solid) .bk-btn {
             --color: white;
@@ -73,10 +112,9 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         '''
 
         self.back_button = pn.widgets.Button(name='◀︎', stylesheets=[button_style_sheet])
-        self.back_button.on_click(self.prev_chromosome)
-
         self.forward_button = pn.widgets.Button(name='▶︎',styles={'background':'white'})
-        self.forward_button.on_click(self.next_chromosome)
+        for w in [self.back_button, self.forward_button]:
+            w.param.watch(self.change_chromosome_cb, ['value'])
         
         self.chromosome_id = pn.widgets.StaticText(name="", value="")
 
@@ -96,12 +134,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             ('Summary', summ_tab),
         )
 
-        self.sidebar.append(pn.Column(
-            pn.pane.HTML("<h3>Parameters</h3>"),
-            self.length_range,
-            self.coverage,
-            self.supported,
-        ))
+        self.sidebar.append(self.filter)
         self.main.append(self.tabs)
 
         self.chr_index = 3
@@ -117,8 +150,10 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
     def display_chromosome(self):
         chr_id = self.clist[self.chr_index]
         chrom = self.intervals[self.intervals.chrom_id == chr_id]
+        peaks = self.peaks[self.peaks.chrom_id == chr_id]
+        snps = self.filter.apply(peaks)
         rects = PatchCollection(self._make_patches(chrom), match_original=True)
-        self._make_dots(self.peaks[self.peaks.chrom_id == chr_id])
+        self._make_dots(peaks)
         fig, ax = plt.subplots(figsize=(12,1))
         plt.box(False)
         plt.yticks([])
@@ -130,11 +165,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         plt.close(fig)
         self.chromosome_id.value = chr_id
         graphic = pn.Column(pn.pane.Matplotlib(fig, dpi=72, tight=True))
-        print(len(self.dotfigs), 'dots')
         if g := self._make_grid():
             graphic.append(g)
         self.tabs[0].pop(-1)
         self.tabs[0].append(graphic)
+
 
     def _make_patches(self, df):
         pcolor = {
@@ -203,18 +238,18 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             g.append(pn.Row(self.block_text[i]))
         return g
     
-    def next_chromosome(self,_):
-        self.chr_index = (self.chr_index + 1) % len(self.clist)
-        self.display_chromosome()
-
-    def prev_chromosome(self,_):
-        self.chr_index = (self.chr_index - 1) % len(self.clist)
-        self.display_chromosome()
-
     def toggle_text(self, e):
         i = e.obj.tags[0]
         self.block_text[i].visible = not self.block_text[i].visible
         self.block_buttons[i].name = '∨' if self.block_text[i].visible else '>'
+
+    def filter_cb(self, e):
+        print('filter', e)
+
+    def change_chromosome_cb(self, e):
+        delta = 1 if e.obj is self.forward_button else -1
+        self.chr_index = (self.chr_index + delta) % len(self.clist)
+        self.display_chromosome()        
 
 def make_app(args):
     """
@@ -235,6 +270,7 @@ def start_app(args):
     Launch the Bokeh server.
     """
     pn.extension(design='native')
+    pn.config.throttled = True
     app = make_app(args)
     pn.serve( 
         {'peaks': app},
