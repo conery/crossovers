@@ -147,7 +147,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.sidebar.append(self.filter)
         self.main.append(self.tabs)
 
-        self.chr_index = 3
+        self.chr_index = 0
 
     def load_data(self, args):
         print('loading interval data')
