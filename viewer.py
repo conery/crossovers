@@ -41,7 +41,9 @@ class BlockSizeFilter(pn.widgets.IntRangeSlider):
         self.value = (self.start, self.end)
 
     def filter(self, df):
-        print('block size filter')
+        bsmin, bsmax = self.value
+        res = set() if ((len(df) < bsmin) or (len(df) > bsmax)) else set(df.index)
+        return res
 
 class BlockLengthFilter(pn.widgets.IntRangeSlider):
     def __init__(self):
@@ -54,7 +56,10 @@ class BlockLengthFilter(pn.widgets.IntRangeSlider):
         self.value = (self.start, self.end)            
 
     def filter(self, df):
-        print('block length filter')
+        w = df.iloc[-1].position - df.iloc[0].position
+        blmin, blmax = self.value
+        res = set() if ((w < blmin) or (w > blmax)) else set(df.index)
+        return res
 
 class CoverageFilter(pn.widgets.IntSlider):
     def __init__(self):
@@ -66,7 +71,7 @@ class CoverageFilter(pn.widgets.IntSlider):
         self.value = self.start
 
     def filter(self, df):
-        print('coverage filter')
+        return set(df[(df.ref_reads + df.var_reads) >= self.value].index)
 
 class SupportFilter(pn.widgets.Checkbox):
     def __init__(self):
@@ -75,7 +80,8 @@ class SupportFilter(pn.widgets.Checkbox):
         )
 
     def filter(self, df):
-        print('support filter')
+        res = set(df[df.base_geno == df.hmm_state1].index) if self.value else set(df.index)
+        return res
 
 class SNPFilter(pn.Column):
 
@@ -89,8 +95,12 @@ class SNPFilter(pn.Column):
         return self.widgets
 
     def apply(self, df):
-        for w in self.widgets:
-            w.filter(df)
+        res = set(df.index)
+        i = 0
+        while i < len(self.widgets) and len(res) > 0:
+            res &= self.widgets[i].filter(df)
+            i += 1
+        return res
 
 class PeakViewerApp(pn.template.BootstrapTemplate):
     def __init__(self, **params):
@@ -151,7 +161,6 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         chr_id = self.clist[self.chr_index]
         chrom = self.intervals[self.intervals.chrom_id == chr_id]
         peaks = self.peaks[self.peaks.chrom_id == chr_id]
-        snps = self.filter.apply(peaks)
         rects = PatchCollection(self._make_patches(chrom), match_original=True)
         self._make_dots(peaks)
         fig, ax = plt.subplots(figsize=(12,1))
@@ -165,11 +174,10 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         plt.close(fig)
         self.chromosome_id.value = chr_id
         graphic = pn.Column(pn.pane.Matplotlib(fig, dpi=72, tight=True))
-        if g := self._make_grid():
-            graphic.append(g)
+        grid = self._make_grid()
+        graphic.append(grid)
         self.tabs[0].pop(-1)
         self.tabs[0].append(graphic)
-
 
     def _make_patches(self, df):
         pcolor = {
@@ -196,27 +204,27 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.dotfigs = {}
         self.blocks = {}
         for grp_id, grp in df.groupby('blk_id'):
-            if len(grp) == 0:
-                continue
-            fig, ax = plt.subplots(figsize=(10,1))
-            plt.box(False)
-            plt.xlim(0,10)
-            plt.ylim(0,1)
-            plt.yticks([])
-            x0 = grp.iloc[0].position
-            w = grp.iloc[-1].position - x0
-            plt.xticks(ticks=np.linspace(0,10,5), labels=[f'{int(n*w)}bp' for n in np.linspace(0,1,5)])
-            plt.suptitle(f'Block #{grp_id}\nStart: {(x0/1000000):.1f}Mbp\nLength: {w}bp', x=0, y=0.5, size='medium',ha='left')
-            res = []
-            for _, snp in grp.iterrows():
-                p = (snp.position - x0) / w
-                x = p*10
-                res.append(Circle((x,0.2),0.1,color=pcolor[snp.base_geno]))
-            dots = PatchCollection(res, match_original=True)
-            ax.add_collection(dots)
-            plt.close(fig)
-            self.dotfigs[grp_id] = (x0, w, fig)
-            self.blocks[grp_id] = grp[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
+            if snps := self.filter.apply(grp):
+                blk = grp[grp.index.isin(snps)]
+                fig, ax = plt.subplots(figsize=(10,0.8))
+                plt.box(False)
+                plt.xlim(0,10)
+                plt.ylim(0,0.8)
+                plt.yticks([])
+                x0 = blk.iloc[0].position
+                w = blk.iloc[-1].position - x0
+                plt.xticks(ticks=np.linspace(0,10,5), labels=[f'{int(n*w)}bp' for n in np.linspace(0,1,5)])
+                plt.suptitle(f'Block #{grp_id}\nStart: {(x0/1000000):.1f}Mbp\nSize: {len(grp)} SNPs\nLength: {w}bp', x=0, y=0.75, size='medium',ha='left')
+                res = []
+                for _, snp in blk.iterrows():
+                    p = ((snp.position - x0) / w) if w > 0 else 0
+                    x = p*10
+                    res.append(Circle((x,0.2),0.1,color=pcolor[snp.base_geno]))
+                dots = PatchCollection(res, match_original=True)
+                ax.add_collection(dots)
+                plt.close(fig)
+                self.dotfigs[grp_id] = (x0, w, fig)
+                self.blocks[grp_id] = blk[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
 
     def _make_grid(self):
         if len(self.dotfigs) == 0:
@@ -244,7 +252,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.block_buttons[i].name = '∨' if self.block_text[i].visible else '>'
 
     def filter_cb(self, e):
-        print('filter', e)
+        self.display_chromosome()        
 
     def change_chromosome_cb(self, e):
         delta = 1 if e.obj is self.forward_button else -1
