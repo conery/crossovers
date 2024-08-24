@@ -26,6 +26,7 @@ def init_cli():
     """
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--intervals', metavar='F', default='BSP_TIGER.intervals_dataframe.pickle.gzip', help='SNP summaries')
     parser.add_argument('--peaks', metavar='F', default='peaks.pickle.gzip', help='blocks saved by peaks.py')
     parser.add_argument('--port', metavar='N', type=int, default=5006, help='local port for the Panel server')
 
@@ -151,7 +152,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
 
     def load_data(self, args):
         print('loading interval data')
-        self.intervals = pd.read_pickle('BSP_TIGER.intervals_dataframe.pickle.gzip', compression='gzip')
+        self.intervals = pd.read_pickle(args.intervals, compression='gzip')
         self.clist = sorted(self.intervals['chrom_id'].unique())
         print('loading peak data')
         self.peaks = pd.read_pickle(args.peaks)
