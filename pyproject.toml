@@ -26,3 +26,6 @@ dependencies = [
 Documentation = "https://github.com/John Conery/crossovers#readme"
 Issues = "https://github.com/John Conery/crossovers/issues"
 Source = "https://github.com/John Conery/crossovers"
+
+[project.scripts]
+xo = "xo.xo:main"

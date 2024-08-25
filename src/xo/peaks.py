@@ -27,7 +27,7 @@ def extract_blocks(chromosome):
         # print(chromosome.iloc[0].chrom_id, i, px[i], prop['prominences'][i], blk_start, blk_end)
     return pd.concat(blocks) if blocks else None
 
-def main(args):
+def peak_finder(args):
     console = Console()
     with console.status(f'Processing SNPs', spinner='aesthetic') as status:
         console.log(f'Reading {args.snps}')
