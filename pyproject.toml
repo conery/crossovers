@@ -20,6 +20,7 @@ dependencies = [
   "scipy >= 1.14",
   "rich >= 13.0",
 ]
+dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/John Conery/crossovers#readme"

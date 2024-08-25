@@ -162,5 +162,7 @@ cython_debug/
 #.idea/
 
 # Local files from the development system
+*.pickle
 *.pickle.gzip
 *.graffle
+*.csv

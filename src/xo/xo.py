@@ -21,12 +21,13 @@ def init_cli():
 
     peak_parser = subparsers.add_parser('peaks', help='find peaks in the SNP data')
     peak_parser.add_argument('--snps', metavar='F', default='BSP_TIGER.marker_dataframe.pickle.gzip', help='input (IGER marker) file')
-    peak_parser.add_argument('--output', metavar='F', default='peaks.pickle.gzip', help='output file')
+    peak_parser.add_argument('--output', metavar='F', default='peaks.csv', help='output file')
+    peak_parser.add_argument('--max_snps', metavar='N', type=int, default=1000, help="max number of SNPs in a block")
     peak_parser.set_defaults(func=peak_finder)
 
     view_parser = subparsers.add_parser('view', help='explore blocks of SNPs')
     view_parser.add_argument('--intervals', metavar='F', default='BSP_TIGER.intervals_dataframe.pickle.gzip', help='SNP summaries')
-    view_parser.add_argument('--peaks', metavar='F', default='peaks.pickle.gzip', help='blocks saved by peaks.py')
+    view_parser.add_argument('--peaks', metavar='F', default='peaks.csv', help='blocks saved by peaks.py')
     view_parser.add_argument('--port', metavar='N', type=int, default=5006, help='local port for the Panel server')
     view_parser.set_defaults(func=start_app)
 

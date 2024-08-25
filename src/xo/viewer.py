@@ -138,7 +138,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.intervals = pd.read_pickle(args.intervals, compression='gzip')
         self.clist = sorted(self.intervals['chrom_id'].unique())
         print('loading peak data')
-        self.peaks = pd.read_pickle(args.peaks)
+        self.peaks = pd.read_csv(args.peaks)
         self.display_chromosome()
 
     def display_chromosome(self):
