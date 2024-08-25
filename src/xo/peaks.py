@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 
 # Command line application to extract segments from the SNP table.  Uses
 # SciPy's find_peaks function to look for regions of the table that change
@@ -7,20 +6,10 @@
 # John Conery
 # University of Oregon
 
-import argparse
 import pandas as pd
 from scipy.signal import find_peaks
 
 from rich.console import Console
-
-def init_cli():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--snps', metavar='F', default='BSP_TIGER.marker_dataframe.pickle.gzip', help='TIGER marker file')
-    parser.add_argument('--output', metavar='F', default='peaks.pickle.gzip', help='output file')
-    parser.add_argument('--sample', metavar='F', help='write a part of the input to file F and exit')
-    parser.add_argument('--size', metavar='N', type=int, default=100000, help='number of records to write in sample')
-    parser.add_argument('--compression', metavar='X', default='gzip', help='method used to compress input file')
-    return parser.parse_args()
 
 def extract_blocks(chromosome):
     signal = ((chromosome.hmm_state1 == 'CB4856').cumsum() - (chromosome.hmm_state1 == 'N2').cumsum()).to_numpy()
@@ -38,8 +27,7 @@ def extract_blocks(chromosome):
         # print(chromosome.iloc[0].chrom_id, i, px[i], prop['prominences'][i], blk_start, blk_end)
     return pd.concat(blocks) if blocks else None
 
-if __name__ == '__main__':
-    args = init_cli()
+def main(args):
     console = Console()
     with console.status(f'Processing SNPs', spinner='aesthetic') as status:
         console.log(f'Reading {args.snps}')

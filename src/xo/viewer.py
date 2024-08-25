@@ -1,14 +1,9 @@
-#! /usr/bin/env python3
 
-#
 # Panel application for viewing peaks in SNP data
 #
 # John Conery
 # University of Oregon
-# (conery@uoregon.edu)
-#
 
-import argparse
 import pandas as pd
 import panel as pn
 import numpy as np
@@ -19,18 +14,6 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle, Circle
 
 pn.extension('tabulator')
-
-def init_cli():
-    """
-    Use argparse to create the command line API.
-    """
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('--intervals', metavar='F', default='BSP_TIGER.intervals_dataframe.pickle.gzip', help='SNP summaries')
-    parser.add_argument('--peaks', metavar='F', default='peaks.pickle.gzip', help='blocks saved by peaks.py')
-    parser.add_argument('--port', metavar='N', type=int, default=5006, help='local port for the Panel server')
-
-    return parser.parse_args()
 
 class BlockSizeFilter(pn.widgets.IntRangeSlider):
     def __init__(self):
@@ -292,7 +275,4 @@ def start_app(args):
     except Exception as err:
         print(err)
 
-if __name__ == '__main__':
-    args = init_cli()
-    start_app(args)
 
