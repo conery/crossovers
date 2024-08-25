@@ -4,7 +4,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xo"
-version = "0.1"
 description = ''
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,18 +13,21 @@ authors = [
   { name = "John Conery", email = "conery@uoregon.edu" },
 ]
 dependencies = [
-  "matplotlib",
-  "numpy",
-  "pandas",
-  "panel",
-  "scipy",
-  "rich",
+  "matplotlib >= 3.9",
+  "numpy >= 2.1",
+  "pandas >= 2.2",
+  "panel >= 1.4",
+  "scipy >= 1.14",
+  "rich >= 13.0",
 ]
 
 [project.urls]
 Documentation = "https://github.com/John Conery/crossovers#readme"
 Issues = "https://github.com/John Conery/crossovers/issues"
 Source = "https://github.com/John Conery/crossovers"
+
+[tool.hatch.version]
+path = "src/xo/__about__.py"
 
 [project.scripts]
 xo = "xo.xo:main"
