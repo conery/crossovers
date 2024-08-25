@@ -280,14 +280,17 @@ def start_app(args):
     """
     pn.extension(design='native')
     pn.config.throttled = True
-    app = make_app(args)
-    pn.serve( 
-        {'peaks': app},
-        port = args.port,
-        verbose = True,
-        autoreload = True,
-        websocket_origin= '*',
-    )
+    try:
+        app = make_app(args)
+        pn.serve( 
+            {'peaks': app},
+            port = args.port,
+            verbose = True,
+            autoreload = True,
+            websocket_origin= '*',
+        )
+    except Exception as err:
+        print(err)
 
 if __name__ == '__main__':
     args = init_cli()
