@@ -7,6 +7,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+# Define default paths to data files
+ENV XO_SNPS=/data/BSP_TIGER.marker_dataframe.pickle.gzip
+ENV XO_INTERVALS=/data/BSP_TIGER.intervals_dataframe.pickle.gzip
+ENV XO_PEAKS=/data/peaks.csv
+
 WORKDIR /app
 COPY . /app
 
@@ -14,9 +19,7 @@ COPY . /app
 RUN python -m pip install .
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
-# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 
-# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["python", "src/xo/peaks.py"]
+CMD ["xo", "view"]
