@@ -11,7 +11,8 @@ import os
 import sys
 
 from .peaks import peak_finder
-from .viewer import start_app
+from .gui import start_app
+from .vis import visualize
 
 def init_cli():
     snps_default = os.environ.get('XO_SNPS') or 'BSP_TIGER.marker_dataframe.pickle.gzip'
@@ -45,7 +46,7 @@ def init_cli():
     vis_parser.add_argument('--length_max', metavar='N', help='maximum block length (bp)')
     vis_parser.add_argument('--coverage', metavar='N', help='minimum coverage')
     vis_parser.add_argument('--match', action='store_true', help='require genome match')
-    vis_parser.set_defaults(func=vis)
+    vis_parser.set_defaults(func=visualize)
 
     post_parser = subparsers.add_parser('post', help='postprocessing of filtered blocks')
     post_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
@@ -56,10 +57,6 @@ def init_cli():
         exit()
 
     return parser.parse_args()
-
-def vis(args):
-    print('vis')
-    print(vars(args))
 
 def post(args):
     print('TBD')
