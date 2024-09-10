@@ -107,10 +107,13 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
 
         self.back_button = pn.widgets.Button(name='◀︎', stylesheets=[button_style_sheet])
         self.forward_button = pn.widgets.Button(name='▶︎',styles={'background':'white'})
+        # self.chromosome_id = pn.widgets.StaticText(name="", value="")
+        self.chromosome_id = pn.widgets.TextInput(name="", value="")
+
         for w in [self.back_button, self.forward_button]:
             w.param.watch(self.change_chromosome_cb, ['value'])
-        
-        self.chromosome_id = pn.widgets.StaticText(name="", value="")
+
+        self.chromosome_id.param.watch(self.chromosome_edited_cb, ['value'])      
 
         chr_tab = pn.Column(
             pn.pane.HTML('<h3>Chromosome</h3>'),
@@ -137,6 +140,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         print('loading interval data')
         self.intervals = pd.read_pickle(args.intervals, compression='gzip')
         self.clist = sorted(self.intervals['chrom_id'].unique())
+        self.cmap = { name: i for i, name in enumerate(self.clist)}
         print('loading peak data')
         self.peaks = pd.read_csv(args.peaks)
         self.display_chromosome()
@@ -241,7 +245,12 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
     def change_chromosome_cb(self, e):
         delta = 1 if e.obj is self.forward_button else -1
         self.chr_index = (self.chr_index + delta) % len(self.clist)
-        self.display_chromosome()        
+        self.display_chromosome()      
+
+    def chromosome_edited_cb(self, e):
+        if idx := self.cmap.get(e.obj.value):
+            self.chr_index = idx
+            self.display_chromosome()
 
 def make_app(args):
     """

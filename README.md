@@ -2,6 +2,8 @@
 
 A command line application to view crossover and non-crossover events in chromosomes.
 
+This document explains how to install and run the application in a terminal window.  To run it in a Docker container see `Docker.md`.
+
 ### Installation
 
 This command will install a Python script named `xo`:

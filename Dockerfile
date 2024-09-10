@@ -1,6 +1,9 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
 FROM python:3-slim
 
+LABEL name="libudalab/crossovers"
+LABEL maintainer="conery@uoregon.edu"
+
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
 
@@ -12,10 +15,12 @@ ENV XO_SNPS=/data/BSP_TIGER.marker_dataframe.pickle.gzip
 ENV XO_INTERVALS=/data/BSP_TIGER.intervals_dataframe.pickle.gzip
 ENV XO_PEAKS=/data/peaks.csv
 
+COPY requirements.txt .
+RUN python -m pip install -r requirements.txt
+
 WORKDIR /app
 COPY . /app
 
-# Install using pyproject.toml (copied in with the rest of the app)
 RUN python -m pip install .
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
