@@ -16,6 +16,9 @@ from matplotlib.patches import Rectangle, Circle
 pn.extension('tabulator')
 
 class BlockSizeFilter(pn.widgets.IntRangeSlider):
+    '''
+    A filter based on the count of the number of SNPs in a block.
+    '''
     def __init__(self):
         super(BlockSizeFilter,self).__init__(
             name = 'Block Size (#SNPs)',
@@ -23,13 +26,24 @@ class BlockSizeFilter(pn.widgets.IntRangeSlider):
             end = 100,
         )
         self.value = (self.start, self.end)
+        self.tags = ['size', 1]
 
     def filter(self, df):
+        '''
+        If the block size (number of rows in the frame) is outside the range 
+        return an empty block, otherwise return the block itself.
+        '''
         bsmin, bsmax = self.value
-        res = set() if ((len(df) < bsmin) or (len(df) > bsmax)) else set(df.index)
-        return res
+        if ((len(df) < bsmin) or (len(df) > bsmax)):
+            return pd.DataFrame(columns=df.columns)
+        else:
+            return df
 
 class BlockLengthFilter(pn.widgets.IntRangeSlider):
+    '''
+    A filter based on the length of a block, defined as the number of bases
+    between the first and last SNP.
+    '''
     def __init__(self):
         super(BlockLengthFilter,self).__init__(
             name = 'Block Length (bp)',
@@ -37,15 +51,26 @@ class BlockLengthFilter(pn.widgets.IntRangeSlider):
             end = 10000,
             step = 10,
         )
-        self.value = (self.start, self.end)            
+        self.value = (self.start, self.end)
+        self.tags = ['length', 1]       
 
     def filter(self, df):
+        '''
+        If the block length is outside the range return an empty block, 
+        otherwise return the block itself.
+        '''
         w = df.iloc[-1].position - df.iloc[0].position
         blmin, blmax = self.value
-        res = set() if ((w < blmin) or (w > blmax)) else set(df.index)
-        return res
+        if ((w < blmin) or (w > blmax)):
+            return pd.DataFrame(columns=df.columns)
+        else:
+            return df
 
 class CoverageFilter(pn.widgets.IntSlider):
+    '''
+    Keep SNPs if the number of reads (in either the reference or variant column)
+    is greater than a cutoff value. 
+    '''
     def __init__(self):
         super(CoverageFilter,self).__init__(
             name = 'Minimum Coverage',
@@ -53,38 +78,57 @@ class CoverageFilter(pn.widgets.IntSlider):
             end = 10,
         )
         self.value = self.start
+        self.tags = ['coverage', 0]
 
     def filter(self, df):
-        return set(df[(df.ref_reads + df.var_reads) >= self.value].index)
+        return df[(df.ref_reads + df.var_reads) >= self.value]
 
 class SupportFilter(pn.widgets.Checkbox):
+    '''
+    Keep SNPs if the base genome column matches the HMM state column.
+    '''
     def __init__(self):
         super(SupportFilter,self).__init__(
             name = 'Genome Match',
         )
+        self.tags = ['match', 0]
 
     def filter(self, df):
-        res = set(df[df.base_geno == df.hmm_state1].index) if self.value else set(df.index)
-        return res
+        if self.value:
+            return df[df.base_geno == df.hmm_state1]
+        else:
+            return df
 
 class SNPFilter(pn.Column):
 
     def __init__(self):
+        '''
+        Instantiate the widgets that will filter SNPs and put them in a Column
+        in the order they will be displayed.  Then sort them by priority (the
+        second value in each widget's tag list) so the list returned by calling
+        widgets() is the order they are applied.  The widget map associates a
+        filter name (the first item in the tag list) with the filter widget.
+        '''
         super(SNPFilter, self).__init__()
-        self.widgets = [cls() for cls in [BlockSizeFilter, BlockLengthFilter, CoverageFilter, SupportFilter]]
+        self._widgets = [cls() for cls in [BlockSizeFilter, BlockLengthFilter, CoverageFilter, SupportFilter]]
         self.append(pn.pane.HTML("<h3>Filters</h3>"))
-        self.extend(self.widgets)
+        self.extend(self._widgets)
+        self._widgets.sort(key = lambda w: w.tags[1])
+        self._widget_map = { w.tags[0]: w for w in self._widgets }
 
     def widgets(self):
-        return self.widgets
+        return self._widgets
+    
+    def widget_map(self):
+        return self._widget_map
 
     def apply(self, df):
         res = set(df.index)
         i = 0
-        while i < len(self.widgets) and len(res) > 0:
-            res &= self.widgets[i].filter(df)
+        while i < len(self._widgets) and len(df) > 0:
+            df = self._widgets[i].filter(df)
             i += 1
-        return res
+        return df
 
 class PeakViewerApp(pn.template.BootstrapTemplate):
     def __init__(self, **params):
@@ -97,7 +141,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         super(PeakViewerApp, self).__init__(**params)
 
         self.filter = SNPFilter()
-        for w in self.filter.widgets:
+        for w in self.filter.widgets():
             w.param.watch(self.filter_cb, ['value'])
 
         button_style_sheet = ''':host(.solid) .bk-btn {
@@ -192,19 +236,20 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.dotfigs = {}
         self.blocks = {}
         for grp_id, grp in df.groupby('blk_id'):
-            if snps := self.filter.apply(grp):
-                blk = grp[grp.index.isin(snps)]
+            snps = self.filter.apply(grp)
+            if len(snps) > 0:
+                # blk = grp[grp.index.isin(snps)]
                 fig, ax = plt.subplots(figsize=(10,0.8))
                 plt.box(False)
                 plt.xlim(0,10)
                 plt.ylim(0,0.8)
                 plt.yticks([])
-                x0 = blk.iloc[0].position
-                w = blk.iloc[-1].position - x0
+                x0 = snps.iloc[0].position
+                w = snps.iloc[-1].position - x0
                 plt.xticks(ticks=np.linspace(0,10,5), labels=[f'{int(n*w)}bp' for n in np.linspace(0,1,5)])
-                plt.suptitle(f'Block #{grp_id}\nStart: {(x0/1000000):.1f}Mbp\nSize: {len(grp)} SNPs\nLength: {w}bp', x=0, y=0.75, size='medium',ha='left')
+                plt.suptitle(f'Block #{grp_id}\nStart: {(x0/1000000):.1f}Mbp\nSize: {len(snps)} SNPs\nLength: {w}bp', x=0, y=0.75, size='medium',ha='left')
                 res = []
-                for _, snp in blk.iterrows():
+                for _, snp in snps.iterrows():
                     p = ((snp.position - x0) / w) if w > 0 else 0
                     x = p*10
                     res.append(Circle((x,0.2),0.1,color=pcolor[snp.base_geno]))
@@ -212,7 +257,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
                 ax.add_collection(dots)
                 plt.close(fig)
                 self.dotfigs[grp_id] = (x0, w, fig)
-                self.blocks[grp_id] = blk[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
+                self.blocks[grp_id] = snps[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
 
     def _make_grid(self):
         if len(self.dotfigs) == 0:
