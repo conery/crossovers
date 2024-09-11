@@ -32,10 +32,15 @@ def set_params(filters, args):
             else:
                 filters[f].value = p
 
+def count_histogram(blks):
+    data = [len(b) for b in blks]
+    fig, ax = plt.subplots()
+    plt.hist(data, bins=10, rwidth=0.8, align='left', range=(1,100))    
+    plt.show()
+
 def visualize(args):
     filter = SNPFilter()
     set_params(filter.widget_map(), args)
     blocks = [filter.apply(b) for b in load_data(args)]
-    for b in blocks:
-        print(b)
+    count_histogram(blocks)
 
