@@ -23,8 +23,19 @@ def load_data(args):
             res.append(blk)
     return res
 
+def set_params(filters, args):
+    params = vars(args)
+    for f in filters:
+        if p := params.get(f):
+            if isinstance(p, list):
+                filters[f].value = tuple(p)
+            else:
+                filters[f].value = p
+
 def visualize(args):
-    blocks = load_data(args)
     filter = SNPFilter()
-    print(filter.widgets())
-    print(filter.widget_map())
+    set_params(filter.widget_map(), args)
+    blocks = [filter.apply(b) for b in load_data(args)]
+    for b in blocks:
+        print(b)
+
