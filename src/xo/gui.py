@@ -26,7 +26,7 @@ class BlockSizeFilter(pn.widgets.IntRangeSlider):
             end = 100,
         )
         self.value = (self.start, self.end)
-        self.tags = ['count', 1]
+        self.tags = ['size', 1]
 
     def filter(self, df):
         '''

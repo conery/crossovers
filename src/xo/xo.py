@@ -41,9 +41,9 @@ def init_cli():
     gui_parser.set_defaults(func=start_app)
 
     vis_parser = subparsers.add_parser('vis', help='visualizations based on filtered blocks')
-    vis_parser.add_argument('command', metavar='DATA', choices=plot_commands, help='data to use for the plot')
+    vis_parser.add_argument('command', metavar='P', choices=plot_commands, help=f'type of plot to make {plot_commands}')
     vis_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
-    vis_parser.add_argument('--chromosomes', metavar='P', default='BSP*', help='names of chromosomes to use')
+    vis_parser.add_argument('--chromosomes', metavar='P', default='BSP.*', help='names of chromosomes to use')
     vis_parser.add_argument('--size', metavar='N', nargs=2, type=int, help='block size range (#SNPs)')
     vis_parser.add_argument('--length', metavar='N', nargs=2, type=int, help='block length range (bp)')
     vis_parser.add_argument('--coverage', metavar='N', type=int, help='minimum coverage')

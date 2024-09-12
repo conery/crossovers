@@ -34,6 +34,7 @@ def set_params(filters, args):
     params = vars(args)
     for f in filters:
         if p := params.get(f):
+            logging.info(f'set {f} to {p}')
             if isinstance(p, list):
                 filters[f].value = tuple(p)
             else:
@@ -106,6 +107,7 @@ def visualize(args):
     set_params(filter.widget_map(), args)
     logging.info('loading data')
     blocks = [filter.apply(b) for b in load_data(args)]
+    logging.info(f'read {len(blocks)} blocks')
     logging.info('creating plot')
     dispatch[args.command](blocks, args)
 

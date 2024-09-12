@@ -25,11 +25,18 @@ usage: xo [-h] {peaks,view} ...
 To run the script type `xo CMND` where `CMND` is one of the operations to perform.  In the current version there are only two operations:
 
 - `peaks` will use the SciPy peak finding function to look for potentially interesting locations in chromosome
-- `view` will display a GUI to allow users to browse the output of the `peaks` command
+- `gui` will display a GUI to allow users to browse the output of the `peaks` command
+- `vis` will generate a visualization summarizing results over all chromosomes
+
+To see the options available for the commands, type `xo` and the command name and then `--help`, _e.g._
+
+```bash
+$ xo gui --help
+```
 
 ### Find Interesting Blocks of SNPs
 
-To list all the options for this step:
+The options for this step allow you to choose different data file names:
 
 ```bash
 $ xo peaks --help
@@ -52,12 +59,26 @@ The `--output` option specifies the name of the output file, which will be a pla
 
 The `--max_snps` option is a cutoff for the maximum block size to write to the output (default: 1000).
 
-### View SNPs
+### View SNPs in the GUI
 
-The `view` command needs two data files.  One is the CSV file with blocks of SNPs from the `peaks` command, the other is a summary of the SNPs in another pickled dataframe.
+The `gui` command has options for specifying the data files to use and a network port used by the GUI:
 
-- specify the path to the peak data with `--peaks` option; the default is `peaks.csv` (the default output name from the `peaks` command)
-- specify the path the summarized data with `--intervals`; the default is `BSP_TIGER.intervals_dataframe.pickle.gzip`
+```bash
+$ xo gui --help
+usage: xo gui [-h] [--intervals F] [--peaks F] [--port N]
+
+options:
+  -h, --help     show this help message and exit
+  --intervals F  SNP summaries
+  --peaks F      blocks saved by peaks.py
+  --port N       local port for the Panel server
+```
+
+Specify the path to the peak data with `--peaks` option; the default is `peaks.csv` (the default output name from the `xo peaks` command)
+
+The other data file used by the GUI is a summary of locations of blocks of SNPs.  Specify the path to this file with `--intervals`; the default is `BSP_TIGER.intervals_dataframe.pickle.gzip`
+
+Panel, the Python library used to display the GUI, is similar to Jupyter.  It creates a server on your local system, and you use the GUI by opening a web browser and connecting to the server.  The default port number is 5006, but you can specify a different port number if you need to (_e.g._ if you have a different Panel app already using that port).
 
 ### Example
 
@@ -87,4 +108,60 @@ If you browser doesn't start automatically, just start the browser, open a new w
 #### Exiting the GUI
 
 Close the web browser window, and type `^C` in the terminal window where you typed the `xo view` command.
+
+## Visualizations
+
+The visualization command will read the data, apply the same filters available in the GUI, and display the resulting graphic in a window.
+
+Currently there are three different visualizations:
+
+- a histogram of the number of SNPs in each block
+- a histogram of the length (in base pairs) of each block
+- a histogram of the relative location on the chromosome of each block
+
+When running the command type `xo vis P` where `P` is the type of plot to make, either `count`, `length`, or `location`.
+
+The remaining options are:
+
+```bash
+  --peaks F        blocks saved by peaks.py
+  --chromosomes P  names of chromosomes to use
+  --size N N       block size range (#SNPs)
+  --length N N     block length range (bp)
+  --coverage N     minimum coverage
+  --match          require genome match
+```
+
+The `--peaks` option specifies the name of the peak data file (same as in the `gui` command).
+
+### Selecting a Subset of the Data
+
+The `--chromosome` option lets you select a subset of the data to visualize by specifying a regular expression to match the chromosome name.  The default is `BSP.*`, meaning "any chromosome with a name that starts with BSP" (in other words, all chromosomes).  Some other examples of name patterns:
+
+| pattern       | chromosomes used                                             |
+| ------------- | ------------------------------------------------------------ |
+| `BSP-OR.*`    | all oocytes                                                  |
+| `BSP-SR.*`    | all spermatocytes                                            |
+| `BSP-OR-10.*` | the chromosomes for the 10 worms with names BSP-OR-001, BSP-OR-002, ... BSP-OR-009. |
+| `BSP-SR-.*-1` | chromosome 1 for all spermatocytes                           |
+
+### Filter Options
+
+The remaining options allow you to specify the filters to use.  There is one option for each of the filters shown in the GUI, so the plots that are made by this command are accurate summaries based on settings you make in the GUI.
+
+Two of the options (`--size` and `--length`) correspond to the interval selectors and require you to specify two values, the minimum and maximum slider locations.  If you don't specify these options the defaults displayed in the GUI are used: block size from 0 to 100 SNPs, block length from 0 to 10,000 bp.
+
+The `--coverage` option is a single integer based on the location of that slider in the GUI.  The default is 0.
+
+Use `--match` option if you clicked the checkbox labeled Genome Match.
+
+### Example
+
+This command generates a histogram of block sizes (number of SNPs) using chromosome 1 from all worms, restricted to SNPs that have a genome match and using only blocks between 1 and 1000 bp long:
+
+```bash
+$ xo vis count --chr 'BSP-.*-1' --match --length 0 1000
+```
+
+
 
