@@ -10,9 +10,12 @@ import argparse
 import os
 import sys
 
+import logging
+from rich.logging import RichHandler
+
 from .peaks import peak_finder
 from .gui import start_app
-from .vis import visualize
+from .vis import visualize, plot_commands
 
 def init_cli():
     snps_default = os.environ.get('XO_SNPS') or 'BSP_TIGER.marker_dataframe.pickle.gzip'
@@ -38,6 +41,7 @@ def init_cli():
     gui_parser.set_defaults(func=start_app)
 
     vis_parser = subparsers.add_parser('vis', help='visualizations based on filtered blocks')
+    vis_parser.add_argument('command', metavar='DATA', choices=plot_commands, help='data to use for the plot')
     vis_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
     vis_parser.add_argument('--chromosomes', metavar='P', default='BSP*', help='names of chromosomes to use')
     vis_parser.add_argument('--size', metavar='N', nargs=2, type=int, help='block size range (#SNPs)')
@@ -56,10 +60,22 @@ def init_cli():
 
     return parser.parse_args()
 
+def setup_logging(args):
+    level = logging.INFO
+    # level = logging.DEBUG
+    # level = logging.WARNING
+    logging.basicConfig(
+        level=level,
+        style='{',
+        format='{relativeCreated:4.0f} msec: {message}',
+        handlers = [RichHandler(markup=True)],
+    )
+
 def post(args):
     print('TBD')
 
 def main():
     args = init_cli()
+    setup_logging(args)
     args.func(args)
 
