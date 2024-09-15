@@ -28,16 +28,16 @@ class BlockSizeFilter(pn.widgets.IntRangeSlider):
         self.value = (self.start, self.end)
         self.tags = ['size', 1]
 
-    def filter(self, df):
+    def filter(self, df, selected):
         '''
         If the block size (number of rows in the frame) is outside the range 
         return an empty block, otherwise return the block itself.
         '''
         bsmin, bsmax = self.value
         if ((len(df) < bsmin) or (len(df) > bsmax)):
-            return pd.DataFrame(columns=df.columns)
+            return set()
         else:
-            return df
+            return selected
 
 class BlockLengthFilter(pn.widgets.IntRangeSlider):
     '''
@@ -54,7 +54,7 @@ class BlockLengthFilter(pn.widgets.IntRangeSlider):
         self.value = (self.start, self.end)
         self.tags = ['length', 1]       
 
-    def filter(self, df):
+    def filter(self, df, selected):
         '''
         If the block length is outside the range return an empty block, 
         otherwise return the block itself.
@@ -62,9 +62,9 @@ class BlockLengthFilter(pn.widgets.IntRangeSlider):
         w = df.iloc[-1].position - df.iloc[0].position
         blmin, blmax = self.value
         if ((w < blmin) or (w > blmax)):
-            return pd.DataFrame(columns=df.columns)
+            return set()
         else:
-            return df
+            return selected
 
 class CoverageFilter(pn.widgets.IntSlider):
     '''
@@ -80,8 +80,9 @@ class CoverageFilter(pn.widgets.IntSlider):
         self.value = self.start
         self.tags = ['coverage', 0]
 
-    def filter(self, df):
-        return df[(df.ref_reads + df.var_reads) >= self.value]
+    def filter(self, df, selected):
+        res = df[df.index.isin(selected) & ((df.ref_reads + df.var_reads) >= self.value)]
+        return set(res.index)
 
 class SupportFilter(pn.widgets.Checkbox):
     '''
@@ -93,11 +94,12 @@ class SupportFilter(pn.widgets.Checkbox):
         )
         self.tags = ['match', 0]
 
-    def filter(self, df):
+    def filter(self, df, selected):
         if self.value:
-            return df[df.base_geno == df.hmm_state1]
+            res = df[df.index.isin(selected) & (df.base_geno == df.hmm_state1)]
+            return set(res.index)
         else:
-            return df
+            return selected
 
 class SNPFilter(pn.Column):
 
@@ -125,10 +127,12 @@ class SNPFilter(pn.Column):
     def apply(self, df):
         res = set(df.index)
         i = 0
-        while i < len(self._widgets) and len(df) > 0:
-            df = self._widgets[i].filter(df)
+        # while i < len(self._widgets) and len(df) > 0:
+        #     df = self._widgets[i].filter(df)
+        while i < len(self._widgets) and len(res) > 0:
+            res &= self._widgets[i].filter(df, res)
             i += 1
-        return df
+        return res
 
 class PeakViewerApp(pn.template.BootstrapTemplate):
     def __init__(self, **params):
@@ -238,18 +242,18 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         for grp_id, grp in df.groupby('blk_id'):
             snps = self.filter.apply(grp)
             if len(snps) > 0:
-                # blk = grp[grp.index.isin(snps)]
+                blk = grp[grp.index.isin(snps)]
                 fig, ax = plt.subplots(figsize=(10,0.8))
                 plt.box(False)
                 plt.xlim(0,10)
                 plt.ylim(0,0.8)
                 plt.yticks([])
-                x0 = snps.iloc[0].position
-                w = snps.iloc[-1].position - x0
+                x0 = blk.iloc[0].position
+                w = blk.iloc[-1].position - x0
                 plt.xticks(ticks=np.linspace(0,10,5), labels=[f'{int(n*w)}bp' for n in np.linspace(0,1,5)])
-                plt.suptitle(f'Block #{grp_id}\nStart: {(x0/1000000):.1f}Mbp\nSize: {len(snps)} SNPs\nLength: {w}bp', x=0, y=0.75, size='medium',ha='left')
+                plt.suptitle(f'Block #{grp_id}\nStart: {(x0/1000000):.1f}Mbp\nSize: {len(blk)} SNPs\nLength: {w}bp', x=0, y=0.75, size='medium',ha='left')
                 res = []
-                for _, snp in snps.iterrows():
+                for _, snp in blk.iterrows():
                     p = ((snp.position - x0) / w) if w > 0 else 0
                     x = p*10
                     res.append(Circle((x,0.2),0.1,color=pcolor[snp.base_geno]))
@@ -257,7 +261,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
                 ax.add_collection(dots)
                 plt.close(fig)
                 self.dotfigs[grp_id] = (x0, w, fig)
-                self.blocks[grp_id] = snps[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
+                self.blocks[grp_id] = blk[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
 
     def _make_grid(self):
         if len(self.dotfigs) == 0:
