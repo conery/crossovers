@@ -6,9 +6,17 @@
 # University of Oregon
 #
 
-import logging
 import pandas as pd
 import re
+
+chr_length = {
+    1: 15114068,
+    2: 15311845,
+    3: 13819453,
+    4: 17493838,
+    5: 20953657,
+    6: 17739129,
+}
 
 class SNPFilter:
 
@@ -25,6 +33,8 @@ class SNPFilter:
 
     def load_data(self, fn):
         self._snps = pd.read_csv(fn).rename(columns={'Unnamed: 0': 'SNP'})
+        self._snps['chr_length'] = self._snps.chromosome.map(lambda n: chr_length[n])
+        self._snps['location'] = self._snps.position / self._snps.chr_length
         self._groups = self._snps.groupby('chrom_id')
 
     def has_chromosome_block(self, chr_id):
@@ -58,14 +68,17 @@ class SNPFilter:
     
     def summary(self, df = None):
         if df is None:
-            df = self._snps
-        groups = df.groupby('blk_id')
+            df = self._snps[self._snps.chrom_id.map(lambda s: bool(re.match(self._chromosome,s)))]
+            groups = df.groupby(['chrom_id', 'blk_id'])
+        else:
+            groups = df.groupby('blk_id')
 
         data = pd.concat(
             [
                 groups.size().rename('blk_size'), 
                 (groups.max('position') - groups.min('position')).position.rename('blk_len'), 
-                (groups.max('position') + groups.min('position')/2).position.rename('blk_loc'), 
+                # (groups.max('position') + groups.min('position')/2).position.rename('blk_loc'),
+                groups.mean('location').location.rename('blk_loc'),
             ],
             axis=1
         )
