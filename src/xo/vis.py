@@ -7,6 +7,7 @@
 import logging
 
 import matplotlib.pyplot as plt
+import matplotlib
 
 from .filters import SNPFilter
 
@@ -61,6 +62,7 @@ def location_histogram(df, args):
 
 
 def visualize(args):
+    matplotlib.rcParams.update({'font.size': 12})
 
     dispatch = {
         'count': count_histogram,

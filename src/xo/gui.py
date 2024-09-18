@@ -144,6 +144,14 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         for w in [self.back_button, self.forward_button]:
             w.param.watch(self.change_chromosome_cb, ['value'])
 
+        self.chromosome_pattern = pn.widgets.TextInput(name="Chromosomes", value="BSP.*")
+        self.size_graph_button = pn.widgets.Button(name='Block Size', stylesheets=[button_style_sheet])
+        self.length_graph_button = pn.widgets.Button(name='Block Length', stylesheets=[button_style_sheet])
+        self.location_graph_button = pn.widgets.Button(name='Block Location', stylesheets=[button_style_sheet])
+
+        for w in [self.size_graph_button, self.length_graph_button, self.location_graph_button]:
+            w.param.watch(self.summary_plot_cb, ['value'])
+
         self.chromosome_id.param.watch(self.chromosome_edited_cb, ['value'])      
 
         chr_tab = pn.Column(
@@ -154,7 +162,9 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
 
         summ_tab = pn.Column(
             pn.pane.HTML('<h3>Summary</h3>'),
-            pn.pane.HTML('<p>TBD</p>')
+            self.chromosome_pattern,
+            pn.Row(self.size_graph_button, self.length_graph_button, self.location_graph_button),
+            pn.pane.HTML('<p>Click a button above to generate a plot summarizing all chromosomes.</p>')
         )
 
         self.tabs = pn.Tabs(
@@ -173,6 +183,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         print('loading peak data')
         self.filter.load_data(args.peaks)
         self.filter_widgets.set_filter(self.filter)
+        
         # setting a value in the chromosome name widget triggers an update
         # to the graphic to display the first chromosome
         self.chr_index = 0
@@ -279,6 +290,56 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             self.chromosome_id.value = self.clist[idx]
             self.display_chromosome()
 
+    histogram_params = {
+        'Block Size': {
+            'col':     'blk_size',
+            'title':   'Block Size',
+            'xlabel':  'Number of SNPs',
+            'ylabel':  'Number of Blocks',
+            'hist': {
+                'bins': 10,
+                'rwidth': 0.8,
+                'align': 'left',
+                'range': (1,100),
+            },
+        },
+        'Block Length': {
+            'col':     'blk_len',
+            'title':   'Block Length',
+            'xlabel':  'Length (bp)',
+            'ylabel':  'Number of Blocks',
+            'hist': {
+                'bins': 10,
+                'rwidth': 0.8,
+            },
+        },
+        'Block Location': {
+            'col':     'blk_loc',
+            'title':   'Block Location',
+            'xlabel':  'Relative Position in the Chromosome',
+            'ylabel':  'Number of Blocks',
+            'hist': {
+                'bins': 100,
+                'range': (0,1),
+            },
+        },
+    }
+
+    def summary_plot_cb(self, e):
+        params = self.histogram_params[e.obj.name]
+        self.tabs[1].loading = True
+        self.filter.set_chromosome(self.chromosome_pattern.value)
+        df = self.filter.summary()
+        fig, ax = plt.subplots(figsize=(7,5))
+        plt.hist(df[params['col']], label=self.chromosome_pattern.value, **params['hist'])
+        plt.title(params['title'])
+        plt.xlabel(params['xlabel'])
+        plt.ylabel(params['ylabel'])
+        plt.legend(handlelength=0)
+        plt.close(fig)
+        self.tabs[1].loading = False
+        self.tabs[1].pop(-1)
+        self.tabs[1].append(pn.pane.Matplotlib(fig, dpi=72, tight=True))
 
 def make_app(args):
     """
