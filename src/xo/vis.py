@@ -9,6 +9,8 @@ import logging
 import matplotlib.pyplot as plt
 import matplotlib
 
+import pandas as pd
+
 from .filters import SNPFilter
 
 # List of plot types.  Imported by the top level app to define the names that
@@ -81,5 +83,9 @@ def visualize(args):
 
     logging.info('plotting')
     dispatch[args.command](summary, args)
+
+    if args.save:
+        logging.info(f'writing summary frame to {args.save}')
+        summary.to_csv(args.save)
 
     logging.info('exit')

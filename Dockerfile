@@ -14,6 +14,7 @@ ENV PYTHONUNBUFFERED=1
 ENV XO_SNPS=/data/BSP_TIGER.marker_dataframe.pickle.gzip
 ENV XO_INTERVALS=/data/BSP_TIGER.intervals_dataframe.pickle.gzip
 ENV XO_PEAKS=/data/peaks.csv
+ENV XO_SAVE=/data/summary.csv
 
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt

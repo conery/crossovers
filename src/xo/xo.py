@@ -21,6 +21,7 @@ def init_cli():
     snps_default = os.environ.get('XO_SNPS') or 'BSP_TIGER.marker_dataframe.pickle.gzip'
     intervals_default = os.environ.get('XO_INTERVALS') or 'BSP_TIGER.intervals_dataframe.pickle.gzip'
     peaks_default = os.environ.get('XO_PEAKS') or 'peaks.csv'
+    save_default = os.environ.get('XO_SAVE') or 'summary.csv'
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
@@ -48,6 +49,7 @@ def init_cli():
     vis_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=(0,10000), help='block length range (bp)')
     vis_parser.add_argument('--coverage', metavar='N', type=int, help='minimum coverage')
     vis_parser.add_argument('--match', action='store_true', help='require genome match')
+    vis_parser.add_argument('--save', metavar='F', default=save_default, help='write summary dataframe to this file')
     vis_parser.set_defaults(func=visualize)
 
     post_parser = subparsers.add_parser('post', help='postprocessing of filtered blocks')
