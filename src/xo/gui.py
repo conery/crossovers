@@ -4,6 +4,7 @@
 # John Conery
 # University of Oregon
 
+import io
 import pandas as pd
 import panel as pn
 import numpy as np
@@ -16,6 +17,8 @@ from matplotlib.patches import Rectangle, Circle
 from xo.filters import SNPFilter
 
 pn.extension('tabulator')
+
+SIDEBAR_WIDTH = 350
 
 class BlockSizeFilter(pn.widgets.IntRangeSlider):
     '''
@@ -149,6 +152,10 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.length_graph_button = pn.widgets.Button(name='Block Length', stylesheets=[button_style_sheet])
         self.location_graph_button = pn.widgets.Button(name='Block Location', stylesheets=[button_style_sheet])
 
+        self.download_button = pn.widgets.FileDownload(callback=self.download_cb, filename='summary.csv', align='center', icon='download')
+        self.download_pane = pn.GridBox(self.download_button, height=200, width=SIDEBAR_WIDTH)
+        self.download_button.visible = False
+
         for w in [self.size_graph_button, self.length_graph_button, self.location_graph_button]:
             w.param.watch(self.summary_plot_cb, ['value'])
 
@@ -172,7 +179,12 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             ('Summary', summ_tab),
         )
 
-        self.sidebar.append(self.filter_widgets)
+        self.sidebar.append(
+            pn.Column(
+                self.filter_widgets,
+                self.download_pane,
+            )
+        )
         self.main.append(self.tabs)
 
     def load_data(self, args):
@@ -183,7 +195,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         print('loading peak data')
         self.filter.load_data(args.peaks)
         self.filter_widgets.set_filter(self.filter)
-        
+
         # setting a value in the chromosome name widget triggers an update
         # to the graphic to display the first chromosome
         self.chr_index = 0
@@ -329,9 +341,9 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         params = self.histogram_params[e.obj.name]
         self.tabs[1].loading = True
         self.filter.set_chromosome(self.chromosome_pattern.value)
-        df = self.filter.summary()
+        self.summary_df = self.filter.summary()
         fig, ax = plt.subplots(figsize=(7,5))
-        plt.hist(df[params['col']], label=self.chromosome_pattern.value, **params['hist'])
+        plt.hist(self.summary_df[params['col']], label=self.chromosome_pattern.value, **params['hist'])
         plt.title(params['title'])
         plt.xlabel(params['xlabel'])
         plt.ylabel(params['ylabel'])
@@ -340,6 +352,14 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.tabs[1].loading = False
         self.tabs[1].pop(-1)
         self.tabs[1].append(pn.pane.Matplotlib(fig, dpi=72, tight=True))
+        self.download_button.visible = True
+
+    def download_cb(self):
+        sio = io.StringIO()
+        self.summary_df.to_csv(sio)
+        sio.seek(0)
+        return sio
+
 
 def make_app(args):
     """
@@ -350,7 +370,7 @@ def make_app(args):
     """
     app = PeakViewerApp(
         title='NCO Explorer', 
-        sidebar_width=350,
+        sidebar_width=SIDEBAR_WIDTH,
     )
     app.load_data(args)
     return app

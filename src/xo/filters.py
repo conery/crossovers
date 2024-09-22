@@ -77,7 +77,6 @@ class SNPFilter:
             [
                 groups.size().rename('blk_size'), 
                 (groups.max('position') - groups.min('position')).position.rename('blk_len'), 
-                # (groups.max('position') + groups.min('position')/2).position.rename('blk_loc'),
                 groups.mean('location').location.rename('blk_loc'),
             ],
             axis=1

@@ -92,10 +92,10 @@ $ xo peaks
 
 It will take a few minutes, but the script will show a status line to indicate it's still working.  When it's done there will be a file named `peaks.csv` in the current directory.
 
-Run the `view` command:
+Run the `gui` command:
 
 ```bash
-$ xo view
+$ xo gui
 loading interval data
 loading peak data
 Launching server at http://localhost:5006

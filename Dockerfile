@@ -29,4 +29,4 @@ USER appuser
 
 EXPOSE 5006
 
-CMD ["xo", "view"]
+CMD ["xo", "gui"]
