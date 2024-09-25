@@ -3,6 +3,11 @@
 #
 # John Conery
 # University of Oregon
+#
+# Run the application using the top level xo command:
+#
+#  $ xo gui OPTS
+#
 
 import io
 import pandas as pd
@@ -20,31 +25,38 @@ pn.extension('tabulator')
 
 SIDEBAR_WIDTH = 350
 
-class BlockSizeFilter(pn.widgets.IntRangeSlider):
+class BlockSizeFilterWidget(pn.widgets.IntRangeSlider):
     '''
-    A filter based on the count of the number of SNPs in a block.
+    Display a filter based on the count of the number of SNPs in a block.
+
+    Arguments:
+      f:  the filter object with the method that does the filtering
     '''
-    def __init__(self):
-        super(BlockSizeFilter,self).__init__(
+    def __init__(self, f):
+        super(BlockSizeFilterWidget,self).__init__(
             name = 'Block Size (#SNPs)',
             start = 0,
             end = 100,
         )
         self.value = (self.start, self.end)
         self.tags = ['size', 1]
-        self.filter = None
+        self.filter = f
 
     def filter_cb(self):
-        self.filter.set_size(self.value)
+        # self.filter.set_size(self.value)
+        self.filter.size_range = self.value
 
 
-class BlockLengthFilter(pn.widgets.IntRangeSlider):
+class BlockLengthFilterWidget(pn.widgets.IntRangeSlider):
     '''
-    A filter based on the length of a block, defined as the number of bases
-    between the first and last SNP.
+    Display a filter based on the length of a block, defined as the number 
+    of bases between the first and last SNP.
+
+    Arguments:
+      f:  the filter object with the method that does the filtering
     '''
-    def __init__(self):
-        super(BlockLengthFilter,self).__init__(
+    def __init__(self, f):
+        super(BlockLengthFilterWidget,self).__init__(
             name = 'Block Length (bp)',
             start = 0,
             end = 10000,
@@ -52,73 +64,77 @@ class BlockLengthFilter(pn.widgets.IntRangeSlider):
         )
         self.value = (self.start, self.end)
         self.tags = ['length', 1]     
-        self.filter = None
+        self.filter = f
 
     def filter_cb(self):
-        self.filter.set_length(self.value)
+        # self.filter.set_length(self.value)
+        self.filter.length_ranged = self.value
 
 
-class CoverageFilter(pn.widgets.IntSlider):
+class CoverageFilterWidget(pn.widgets.IntSlider):
     '''
     Keep SNPs if the number of reads (in either the reference or variant column)
     is greater than a cutoff value. 
+
+    Arguments:
+      f:  the filter object with the method that does the filtering
     '''
-    def __init__(self):
-        super(CoverageFilter,self).__init__(
+    def __init__(self, f):
+        super(CoverageFilterWidget,self).__init__(
             name = 'Minimum Coverage',
             start = 0,
             end = 10,
         )
         self.value = self.start
         self.tags = ['coverage', 0]
-        self.filter = None
+        self.filter = f
 
     def filter_cb(self):
-        self.filter.set_coverage(self.value)
+        # self.filter.set_coverage(self.value)
+        self.filter.coverage = self.value
 
 
-class SupportFilter(pn.widgets.Checkbox):
+class SupportFilterWidget(pn.widgets.Checkbox):
     '''
     Keep SNPs if the base genome column matches the HMM state column.
+
+    Arguments:
+      f:  the filter object with the method that does the filtering
     '''
-    def __init__(self):
-        super(SupportFilter,self).__init__(
+    def __init__(self, f):
+        super(SupportFilterWidget,self).__init__(
             name = 'Genome Match',
         )
         self.tags = ['match', 0]
-        self.filter = None
+        self.filter = f
 
     def filter_cb(self):
-        self.filter.set_matched(self.value)
+        # self.filter.set_matched(self.value)
+        self.filter.matched = self.value
 
 
 class FilterBox(pn.Column):
 
-    def __init__(self):
+    def __init__(self, f):
         '''
         Instantiate the widgets that will filter SNPs and put them in a Column
-        in the order they will be displayed.  Then sort them by priority (the
-        second value in each widget's tag list) so the list returned by calling
-        widgets() is the order they are applied.  The widget map associates a
-        filter name (the first item in the tag list) with the filter widget.
+        in the order they will be displayed.
+
+        Arguments:
+          f:  the filter object with the method that does the filtering (passed to
+              the constructors for each filter widget)
         '''
         super(FilterBox, self).__init__()
-        self._widgets = [cls() for cls in [BlockSizeFilter, BlockLengthFilter, CoverageFilter, SupportFilter]]
+        self._widgets = [cls(f) for cls in [BlockSizeFilterWidget, BlockLengthFilterWidget, CoverageFilterWidget, SupportFilterWidget]]
         self.append(pn.pane.HTML("<h3>Filters</h3>"))
         self.extend(self._widgets)
-        self._widgets.sort(key = lambda w: w.tags[1])
-        # self._widget_map = { w.tags[0]: w for w in self._widgets }
 
     def widgets(self):
+        '''
+        Return a list of filter widgets.
+        '''
         return self._widgets
-    
-    # def widget_map(self):
-    #     return self._widget_map
-    
-    def set_filter(self, f):
-        for w in self._widgets:
-            w.filter = f
-
+        
 
 class PeakViewerApp(pn.template.BootstrapTemplate):
     def __init__(self, **params):
@@ -131,7 +147,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         super(PeakViewerApp, self).__init__(**params)
 
         self.filter = SNPFilter()
-        self.filter_widgets = FilterBox()
+        self.filter_widgets = FilterBox(self.filter)
         for w in self.filter_widgets.widgets():
             w.param.watch(self.filter_cb, ['value'])
 
@@ -188,20 +204,34 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.main.append(self.tabs)
 
     def load_data(self, args):
+        '''
+        Read the two data files needed by the application.  The interval data file has
+        the names of all the chromosomes (regardless of whether any SNPs were found); it's
+        used to initialize the list of chromosome names.  The name of the SNP data file is
+        passed to the filter object, which manages all the SNP data.
+
+        Arguments:
+          args:  command line arguments 
+        '''
         print('loading interval data')
         self.intervals = pd.read_pickle(args.intervals, compression='gzip').groupby('chrom_id')
         self.clist = list(self.intervals.groups.keys())
         self.cmap = { name: i for i, name in enumerate(self.clist)}
         print('loading peak data')
         self.filter.load_data(args.peaks)
-        self.filter_widgets.set_filter(self.filter)
 
         # setting a value in the chromosome name widget triggers an update
         # to the graphic to display the first chromosome
         self.chr_index = 0
-        self.chromosome_id.value = self.clist[0]
+        self.chromosome_id.value = self.clist[self.chr_index]
 
     def display_chromosome(self):
+        '''
+        Update the chromosome display.  Called whenever the chromosome ID changes.  Shows
+        a set of rectangular patches where the color is based on the region identified by 
+        the HMM.  Below that is a grid with one row for each block of SNPs identifed by
+        the peak finder.
+        '''
         chr_id = self.chromosome_id.value
         chrom = self.intervals.get_group(chr_id)
         rects = PatchCollection(self._make_patches(chrom), match_original=True)
@@ -224,6 +254,12 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.tabs[0].append(graphic)
 
     def _make_patches(self, df):
+        '''
+        Create a horizontal bar as a collection of rectangular patches, with one
+        patch for each row in the data frame.  The rows have the starting coordinates
+        lengths, and HMM states of chromosome regions, used to define the width and
+        color of a patch.
+        '''
         pcolor = {
             'CB4856': 'dodgerblue',
             'N2': 'indianred'
@@ -235,10 +271,17 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             res.append(Circle((r.start,750000), 50000, color='black'))
         return res
 
-    # def _make_dots(self):
     def _make_grid(self):
+        '''
+        Make a Column object that has a collection of figures, one for each block 
+        in a chromosome (saved in an instance var).  The figures are saved in a grid.  
+        Below each figure is a text widget containing the data frame with the filtered 
+        SNPs in the block, i.e. the grid for a chromosome with N blocks as 2*N rows.  
+        The frames are initially hidden.  The rows that have figures also have a toggle 
+        button; clicking this button will show or hide the frame. 
+        '''
         pcolor = {
-            'CB4856': 'cornflowerblue',
+            'CB4856': 'dodgerblue',
             'N2': 'indianred',
             'uCB4856': 'lightsteelblue',
             'uN2': 'lightpink',
@@ -282,20 +325,38 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         return g
     
     def toggle_text(self, e):
+        '''
+        Callback function invoked when a toggle button in the chromosome display is clicked.
+        Toggles the visibility of the frame and updates the button name based on the new
+        visibility state.
+        '''
         i = e.obj.tags[0]
         self.block_text[i].visible = not self.block_text[i].visible
         self.block_buttons[i].name = '∨' if self.block_text[i].visible else '>'
 
     def filter_cb(self, e):
+        '''
+        Callback function invoked when any of the widgets used for filtering (sliders,
+        checkbox, etc) is activated.
+        '''
         e.obj.filter_cb()
         self.display_chromosome()        
 
     def change_chromosome_cb(self, e):
+        '''
+        Callback function invoked when the left or right button next to the chromosome
+        name is clicked.
+        '''
         delta = 1 if e.obj is self.forward_button else -1
         self.chr_index = (self.chr_index + delta) % len(self.clist)
         self.chromosome_id.value = self.clist[self.chr_index]
 
     def chromosome_edited_cb(self, e):
+        '''
+        Callback function invoked whenever the chromosome ID is updated.  This will
+        happen when the user edits the chromosome name or the name changes after
+        a button click.
+        '''
         idx = self.cmap.get(e.obj.value)
         if idx is not None:
             self.chr_index = idx
@@ -338,9 +399,15 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
     }
 
     def summary_plot_cb(self, e):
+        '''
+        Callback function invoked when the user clicks the name of one of the 
+        histograms in the summary tab.  All histograms have the same basic parameters,
+        those that are specific to a type of data are defined in the dictionary above.
+        '''
         params = self.histogram_params[e.obj.name]
         self.tabs[1].loading = True
-        self.filter.set_chromosome(self.chromosome_pattern.value)
+        # self.filter.set_chromosome(self.chromosome_pattern.value)
+        self.filter.chromosome = self.chromosome_pattern.value
         self.summary_df = self.filter.summary()
         fig, ax = plt.subplots(figsize=(7,5))
         plt.hist(self.summary_df[params['col']], label=self.chromosome_pattern.value, **params['hist'])
@@ -355,6 +422,10 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.download_button.visible = True
 
     def download_cb(self):
+        '''
+        Callback function invoked when the user clicks the download button (made 
+        visible after plotting a histogram).
+        '''
         sio = io.StringIO()
         self.summary_df.to_csv(sio)
         sio.seek(0)

@@ -1,6 +1,11 @@
 #! /usr/bin/env python3
 
-# Top level application for the crossovers project.  Type
+# Top level application for the crossovers project.  
+#
+# John Conery
+# University of Oregon
+# 
+# To run the application type
 #
 #  $ xo CMND [OPTS]
 #
@@ -44,7 +49,7 @@ def init_cli():
     vis_parser = subparsers.add_parser('vis', help='visualizations based on filtered blocks')
     vis_parser.add_argument('command', metavar='P', choices=plot_commands, help=f'type of plot to make {plot_commands}')
     vis_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
-    vis_parser.add_argument('--chromosomes', metavar='P', default='BSP.*', help='names of chromosomes to use')
+    vis_parser.add_argument('--chromosome', metavar='P', default='BSP.*', help='chromosome name pattern')
     vis_parser.add_argument('--size', metavar='N', nargs=2, type=int, default=(0,100), help='block size range (#SNPs)')
     vis_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=(0,10000), help='block length range (bp)')
     vis_parser.add_argument('--coverage', metavar='N', type=int, help='minimum coverage')

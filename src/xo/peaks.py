@@ -1,7 +1,12 @@
-
+#
 # Command line application to extract segments from the SNP table.  Uses
 # SciPy's find_peaks function to look for regions of the table that change
 # HMM state.
+#
+# Run the application using the top level xo script:
+#
+#  $ xo peaks OPTS
+#
 
 # John Conery
 # University of Oregon
@@ -12,6 +17,18 @@ from scipy.signal import find_peaks
 from rich.console import Console
 
 def extract_blocks(chromosome, max_block_size):
+    '''
+    Use `find_peaks` from the SciPy signal processing library to look for
+    sequences of SNPs.  Sequences that "stand out" are collected into a block,
+    represented by a data frame with a new column appended to hold the block ID.
+
+    Arguments:
+      chromosome:  a data frame where each row describes a SNP
+      max_block_size:  the maximum number of SNPs to include in a block
+
+    Returns:
+      a data frame containing all the SNPs in blocks.
+    '''
     signal = ((chromosome.hmm_state1 == 'CB4856').cumsum() - (chromosome.hmm_state1 == 'N2').cumsum()).to_numpy()
     px, prop = find_peaks(signal, prominence=1)
     blocks = []
@@ -26,10 +43,17 @@ def extract_blocks(chromosome, max_block_size):
             continue
         df = chromosome.iloc[blk_start:blk_end+1]
         blocks.append(df.assign(blk_id=i))
-        # print(chromosome.iloc[0].chrom_id, i, px[i], prop['prominences'][i], blk_start, blk_end)
     return pd.concat(blocks) if blocks else None
 
 def peak_finder(args):
+    '''
+    Top level function.  Reads the SNP data, groups it by chromosome, and
+    calls `find_peaks` for each chromosome.  The results are collected in
+    a data frame and written to a CSV file.
+
+    Arguments:
+      args:  command line arguments from `argparse`
+    '''
     console = Console()
     with console.status(f'Processing SNPs', spinner='aesthetic') as status:
         console.log(f'Reading {args.snps}')

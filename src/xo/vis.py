@@ -19,21 +19,20 @@ from .filters import SNPFilter
 
 plot_commands = ['count', 'length', 'location']
 
+# Associate command line arguments with filter attributes
+
+filter_params = {
+    'chromosomes':  'chromosome',
+    'size':         'size_range',
+    'length':       'length_range',
+    'coverage':     'coverage',
+    'match':        'matched',
+}
+
 def set_params(filter, args):
-
-    dispatch = {
-        'chromosomes': filter.set_chromosome,
-        'size':        filter.set_size,
-        'length':      filter.set_length,
-        'coverage':    filter.set_coverage,
-        'match':       filter.set_matched,
-    }
-
-    params = vars(args)
-    for f in dispatch.keys():
-        if v := params.get(f):
-            dispatch[f](v)
-
+    for arg, attr in filter_params.items():
+        if val := vars(args).get(arg):
+            setattr(filter, attr, val)
 
 def count_histogram(df, args):
     fig, ax = plt.subplots()
