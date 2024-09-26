@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Peak Finder - Crossover Explorer</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../css/xo.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Peak Finder";
+        var mkdocs_page_input_path = "peaks.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Crossover Explorer
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="..">Getting Started</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Running the Applications</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Peak Finder</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#look-for-valleys-as-well-as-peaks">Look for Valleys as Well as Peaks</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#maximum-block-size">Maximum Block Size</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#no-crossover">No Crossover</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#shell-command">Shell Command</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#output-file">Output File</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Crossover Explorer Documentation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../modules.md">None</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Widgets</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../widgets.md">Widget Classes</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../filterbox.md">Filter Box</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../chromosomes.md">Chromosome Display</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../app.md">PeakViewerApp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../filters.md">Filters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../main.md">None</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../tests.md">None</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Crossover Explorer</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Running the Applications</li>
+      <li class="breadcrumb-item active">Peak Finder</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="peak-finder">Peak Finder</h1>
+<p>This application scans a chromosome to look for sequences of SNPs that are potentially associated with crossover or non-crossover events.</p>
+<p>The name "peak finder" comes from the method we use to look for these events.  We define a <strong>signal function</strong> that is based on counting the number of SNPs.  At any location <em>x</em> in the chromosome, let <em>f</em> be the total number of CB4856 SNPs seen up to that point, and let <em>g</em> be the total number of N2 SNPs seen to that point.  Then our signal function is simply <em>f</em> − <em>g</em>.  As we move across the chromosome, the signal goes up whenever we encounter a CB4856 SNP and goes down whenever we see an N2 SNP.</p>
+<p>As an example, suppose a chromosome has a single crossover point, and that before that point all the SNPs are from the CB4856 parent, and after that point all the SNPs are from the N2 parent. The signal will increase monotonically up to that point and then decrease monotonically after that.  The signal has one peak, at exactly the location where the crossover occurred.</p>
+<p>If there are non-crossover events, we expect to see small regions where SNPs from the other parent occur somewhere in the middle of the long sequences before and after the main crossover point.  These will appear as small "blips" in the signal:  a short drop in the region that is otherwise increasing, or a short rise in the region that is otherwise decreasing.</p>
+<p>We use the <code>find_peaks</code> function from the NumPy signal processing library to look for these regions in our signal function.  We define a <strong>block</strong> to be the set of SNPs from the start to the end of one of the regions identified by the peak finder.</p>
+<p>The output is a CSV file that has all the SNPs from these blocks.</p>
+<h4 id="look-for-valleys-as-well-as-peaks">Look for Valleys as Well as Peaks</h4>
+<p>Some chromosomes will have N2 SNPs before the main crossover point and CB4856 SNPs after that.  In this case the signal decreases before the crossover and increases after that point, so the crossover is at a location where there is a "valley" and not a peak.  The NumPy function returns locations of both peaks and valleys, and our code saves locations from each type of "blip".</p>
+<h4 id="maximum-block-size">Maximum Block Size</h4>
+<p>If a chromosome has a single crossover, the peak finding algorithm will think the sequence from the start of the chromosome up to the crossover location is a block, and the sequence from the crossover point to the end of the chromosome is another block.  </p>
+<p>To prevent these two blocks from being included in the output the script has a block size limit, which is the maximum number of SNPs that can be included in a block.</p>
+<p>There are also "pathological" cases where there are small blips inside a longer region that also stands out from the background.  In these situations the peak finder reports the coordinates of the longer enclosing block along with the locations of the smaller blocks nested inside.  Choosing a smaller block size limit will prevent the enclosing block from being included in the output while still including the smaller blocks.</p>
+<h4 id="no-crossover">No Crossover</h4>
+<p>Some chromosomes in the data set have no crossover points.  In these situations the peak finder will not find a peak or a valley and the output file will have no blocks for this chromosome.</p>
+<h2 id="shell-command">Shell Command</h2>
+<p>To run the peak finder with the default options type</p>
+<pre><code class="language-bash">$ xo peaks
+</code></pre>
+<p>That will read the SNP data from TIGER and write blocks to an output file in CSV format.</p>
+<ul>
+<li>The default input file name is <code>BSP_TIGER.marker_dataframe.pickle.gzip</code>.  A different file name can be specified with the <code>--snps</code> option.</li>
+<li>The default output file name is <code>peaks.csv</code>.  A different name can be specified with <code>--output</code>.</li>
+<li>The default block size limit is 1000 SNPs.  A different value can be specified with the <code>--max_snps</code> option.</li>
+</ul>
+<h2 id="output-file">Output File</h2>
+<p>The data written by this command is saved in a CSV file.</p>
+<p>Each row in the file is a SNP.  The lines are exact copies of the lines from the original input file, including the original SNP ID in the first column.</p>
+<p>One new column has been appended to each line.  This column is a block ID number, which allows the GUI and visualization commands to group SNPs by blocks.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gui/" class="btn btn-neutral float-right" title="View SNPs in the GUI">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../gui/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

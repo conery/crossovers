@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Getting Started - Crossover Explorer</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="css/xo.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Getting Started";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> Crossover Explorer
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Getting Started</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#commands">Commands</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#abbreviating-options">Abbreviating Options</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Running the Applications</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="peaks/">Peak Finder</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="gui/">View SNPs in the GUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="vis/">Crossover Explorer Documentation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="modules.md">None</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Widgets</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="widgets.md">Widget Classes</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="filterbox.md">Filter Box</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="chromosomes.md">Chromosome Display</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="app.md">PeakViewerApp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="filters.md">Filters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="main.md">None</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="tests.md">None</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">Crossover Explorer</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Home</li>
+      <li class="breadcrumb-item active">Getting Started</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="crossover-explorer">Crossover Explorer</h1>
+<p>The <strong>crossover explorer</strong> is an application that filters and displays SNPs, with the goal of looking for evidence of crossover and non-crossover events in <em>C. elegans</em> genomes.</p>
+<p>The application uses two sets of data:</p>
+<ul>
+<li>
+<p><code>BSP_TIGER.marker_dataframe.pickle.gzip</code> is a "pickled" and compressed Pandas data frame with the output from TIGER.  Each row in the frame describes a SNP, with columns for the
+chromosome name, location, and the predicted parent genome (N2 or CB4856), and more.</p>
+</li>
+<li>
+<p><code>BSP_TIGER.intervals_dataframe.pickle.gzip</code>, a summary of the SNP data, where each row defines a chromosome segment and its predicted parent.</p>
+</li>
+</ul>
+<p>We suggest creating a new folder to use for a project directory.  Move (or link) the two data files to this folder, then <code>cd</code> to the directory and run the crossover explorer scripts in that directory.</p>
+<blockquote>
+<p><strong>Note for Docker users</strong>:  if you are running the GUI in a Docker container you will bind mount this same directory when starting the container.</p>
+</blockquote>
+<h2 id="commands">Commands</h2>
+<p>To run one of the commands type <code>xo</code> followed by one of the command names (<code>peaks</code>, <code>gui</code>, or <code>vis</code>).   Each of the commands has its own help message, which you can see by adding <code>--help</code> to the command.</p>
+<h4 id="examples">Examples</h4>
+<p>This command prints the help message for the top level <code>xo</code> script:</p>
+<pre><code class="language-bash">$ xo --help
+usage: xo [-h] {peaks,gui,vis,post} ...
+
+options:
+  -h, --help            show this help message and exit
+
+subcommands:
+  operation to perform
+
+  {peaks,gui,vis,post}
+    peaks               find peaks in the SNP data
+    gui                 explore blocks of SNPs
+    vis                 visualizations based on filtered blocks
+</code></pre>
+<p>To see the help message for the <code>peaks</code> command:</p>
+<pre><code class="language-bash">$ xo peaks --help
+usage: xo peaks [-h] [--snps F] [--output F] [--max_snps N]
+...
+</code></pre>
+<h2 id="abbreviating-options">Abbreviating Options</h2>
+<p>The <code>xo</code> scripts, like most modern Unix command line applications, allow users to shorten option names, so that it is only necessary to type enough characters to distinguish one option from another.</p>
+<p>The full command name (<code>peaks</code>, <code>gui</code>, or <code>vis</code>) must be entered completely, but after that any option names can be abbreviated.</p>
+<h4 id="example">Example</h4>
+<p>These two commands are equivalent:</p>
+<pre><code class="language-bash">$ xo peaks --output short_blocks.csv --max_snps 10
+$ xo peaks --out short_blocks.csv --m 10
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="peaks/" class="btn btn-neutral float-right" title="Peak Finder">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="peaks/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
