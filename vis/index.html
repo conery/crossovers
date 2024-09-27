@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Crossover Explorer Documentation - Crossover Explorer</title>
+    <title>Generate Plots from the Command Line - Crossover Explorer</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -14,7 +14,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Crossover Explorer Documentation";
+        var mkdocs_page_name = "Generate Plots from the Command Line";
         var mkdocs_page_input_path = "vis.md";
         var mkdocs_page_url = null;
       </script>
@@ -52,29 +52,15 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Crossover Explorer Documentation</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Generate Plots from the Command Line</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#data-files">Data Files</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#use-peaks-to-find-interesting-blocks-of-snps">Use peaks to Find Interesting Blocks of SNPs</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#view-snps-in-the-gui">View SNPs in the GUI</a>
+    <li class="toctree-l2"><a class="reference internal" href="#command-line-options">Command Line Options</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#exiting-the-gui">Exiting the GUI</a>
+    <li class="toctree-l3"><a class="reference internal" href="#default-filter-settings">Default Filter Settings</a>
     </li>
-        </ul>
+    <li class="toctree-l3"><a class="reference internal" href="#name-patterns-in-shell-commands">Name Patterns in Shell Commands</a>
     </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#visualizations">Visualizations</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#selecting-a-subset-of-the-data">Selecting a Subset of the Data</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#filter-options">Filter Options</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a>
     </li>
         </ul>
     </li>
@@ -119,7 +105,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Running the Applications</li>
-      <li class="breadcrumb-item active">Crossover Explorer Documentation</li>
+      <li class="breadcrumb-item active">Generate Plots from the Command Line</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -128,120 +114,93 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="crossover-explorer-documentation">Crossover Explorer Documentation</h1>
-<p>The <strong>crossover explorer</strong> is an application that filters and displays SNPs, with the goal of looking for evidence of crossover and non-crossover events in <em>C. elegans</em> genomes.</p>
-<h2 id="data-files">Data Files</h2>
-<p>The application uses two sets of data:</p>
-<ul>
-<li>
-<p><code>BSP_TIGER.marker_dataframe.pickle.gzip</code> is a "pickled" and compressed Pandas data frame with the output from TIGER.  Each row in the frame describes a SNP, with columns for the
-chromosome name, location, and the predicted parent genome (N2 or CB4856), and more.</p>
-</li>
-<li>
-<p><code>BSP_TIGER.intervals_dataframe.pickle.gzip</code>, a summary of the SNP data, where each row defines a chromosome segment and its predicted parent.</p>
-</li>
-</ul>
-<h2 id="use-peaks-to-find-interesting-blocks-of-snps">Use <code>peaks</code> to Find Interesting Blocks of SNPs</h2>
-<p>To run the peak finder with the default options type</p>
-<pre><code class="language-bash">$ xo peaks
-</code></pre>
-<p>That will read the SNP data from TIGER and write blocks to an output file in CSV format.</p>
-<p>The options for this step allow you to choose different data file names for both the input and output file and to set an upper limit on the block size:</p>
-<pre><code class="language-bash">$ xo peaks --help
-usage: xo peaks [-h] [--snps F] [--output F] [--max_snps N]
+                <h1 id="generate-plots-from-the-command-line">Generate Plots from the Command Line</h1>
+<p>The <code>xo vis</code> command is an alternate method for generating the histograms that summarize blocks across all the chromosomes.</p>
+<h2 id="command-line-options">Command Line Options</h2>
+<p>The command that runs the program has options to specify settings for each of the filters.  To see the complete list of options use the <code>--help</code> option:</p>
+<pre><code class="language-bash">$ xo vis --help
+usage: xo vis [-h] [--peaks F] [--chromosomes P] [--size N N] 
+       [--length N N] [--coverage N] [--match] [--save F] P
+
+positional arguments:
+  P                type of plot to make ['count', 'length', 'location']
 
 options:
-  -h, --help    show this help message and exit
-  --snps F      input (IGER marker) file
-  --output F    output file
-  --max_snps N  max number of SNPs in a block
-</code></pre>
-<p>If <code>--max_snps</code> is not specified the default of 1000 SNPs per block is used.</p>
-<h2 id="view-snps-in-the-gui">View SNPs in the GUI</h2>
-<p>The <code>gui</code> command has options for specifying the data files to use and a network port used by the GUI:</p>
-<pre><code class="language-bash">$ xo gui --help
-usage: xo gui [-h] [--intervals F] [--peaks F] [--port N]
-
-options:
-  -h, --help     show this help message and exit
-  --intervals F  SNP summaries
-  --peaks F      blocks saved by peaks.py
-  --port N       local port for the Panel server
-</code></pre>
-<p>Specify the path to the peak data with <code>--peaks</code> option; the default is <code>peaks.csv</code> (the default output name from the <code>xo peaks</code> command)</p>
-<p>The other data file used by the GUI is a summary of locations of blocks of SNPs.  Specify the path to this file with <code>--intervals</code>; the default is <code>BSP_TIGER.intervals_dataframe.pickle.gzip</code></p>
-<p>Panel, the Python library used to display the GUI, is similar to Jupyter.  It creates a server on your local system, and you use the GUI by opening a web browser and connecting to the server.  The default port number is 5006, but you can specify a different port number if you need to (<em>e.g.</em> if you have a different Panel app already using that port).</p>
-<h3 id="example">Example</h3>
-<p>The simplest workflow is to create a directory and copy (or link) the two pickled dataframes, using their default file names.</p>
-<p>Run the <code>peaks</code> command with default options:</p>
-<pre><code class="language-bash">$ xo peaks
-</code></pre>
-<p>It will take a few minutes, but the script will show a status line to indicate it's still working.  When it's done there will be a file named <code>peaks.csv</code> in the current directory.</p>
-<p>Run the <code>gui</code> command:</p>
-<pre><code class="language-bash">$ xo gui
-loading interval data
-loading peak data
-Launching server at http://localhost:5006
-</code></pre>
-<p>That will read the two data files and start the GUI, which uses a web server connected to port 5606.  The server should start your default web browser and show a view of the first chromosome in the data set.</p>
-<p>If you browser doesn't start automatically, just start the browser, open a new window, and enter the URL printed in the terminal window (<code>http://localhost:5006</code> in the example above).</p>
-<h4 id="exiting-the-gui">Exiting the GUI</h4>
-<p>Close the web browser window, and type <code>^C</code> in the terminal window where you typed the <code>xo view</code> command.</p>
-<h2 id="visualizations">Visualizations</h2>
-<p>The visualization command will read the data, apply the same filters available in the GUI, and display the resulting graphic in a window.</p>
-<p>Currently there are three different visualizations:</p>
-<ul>
-<li>a histogram of the number of SNPs in each block</li>
-<li>a histogram of the length (in base pairs) of each block</li>
-<li>a histogram of the relative location on the chromosome of each block</li>
-</ul>
-<p>When running the command type <code>xo vis P</code> where <code>P</code> is the type of plot to make, either <code>count</code>, <code>length</code>, or <code>location</code>.</p>
-<p>The remaining options are:</p>
-<pre><code class="language-bash">  --peaks F        blocks saved by peaks.py
-  --chromosomes P  names of chromosomes to use
+  -h, --help       show this help message and exit
+  --peaks F        blocks saved by peaks.py
+  --chromosomes P  chromosome name pattern
   --size N N       block size range (#SNPs)
   --length N N     block length range (bp)
   --coverage N     minimum coverage
   --match          require genome match
+  --save F         write summary dataframe to this file
 </code></pre>
-<p>The <code>--peaks</code> option specifies the name of the peak data file (same as in the <code>gui</code> command).</p>
-<h3 id="selecting-a-subset-of-the-data">Selecting a Subset of the Data</h3>
-<p>The <code>--chromosome</code> option lets you select a subset of the data to visualize by specifying a regular expression to match the chromosome name.  The default is <code>BSP.*</code>, meaning "any chromosome with a name that starts with BSP" (in other words, all chromosomes).  Some other examples of name patterns:</p>
+<p>According to this output, each time we run the program we have to specify a value for <code>P</code>, which stands for "plot type."  The possible values are <code>count</code>, <code>length</code>, and <code>location</code>, which correspond to the three kinds of histograms.</p>
+<p>Five of the options correspond to the filter widgets and chromosome name widget displayed in the GUI:</p>
+<ul>
+<li>Use <code>--chromosomes</code> to specify a chromosome name pattern. If you plan to use this option read the section below on "name patterns in shell commands."  </li>
+<li>Use <code>--size</code> and <code>--length</code> to specify block size and length limits.  Note that both of these options require two integer arguments, corresponding to the settings of the double-ended slider in the GUI. </li>
+<li>The <code>--coverage</code> option takes a single integer argument, which corresponds to the value of the coverage slider in the GUI.</li>
+<li>Including <code>--match</code> on the command line is the same as clicking the toggle button in the match widget.</li>
+</ul>
+<p>The remaining two options are for specifying file names.</p>
+<ul>
+<li>The <code>--peaks</code> option can be used to specify an alternative to the default <code>peaks.csv</code> file with the output from the <code>peaks</code> command.</li>
+<li>Use <code>--save</code> to have the application write the size and location of each block to a CSV file.</li>
+</ul>
+<h3 id="default-filter-settings">Default Filter Settings</h3>
+<p>If a filter option is not specified on the command line the default value will be used.  Each default is the same as the values shown in the GUI when it first starts.</p>
 <table>
 <thead>
 <tr>
-<th>pattern</th>
-<th>chromosomes used</th>
+<th>Option</th>
+<th>Description</th>
+<th>Default</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>BSP-OR.*</code></td>
-<td>all oocytes</td>
+<td><code>chromosome</code></td>
+<td>regular expression for chromosome names</td>
+<td><code>BSP.*</code></td>
 </tr>
 <tr>
-<td><code>BSP-SR.*</code></td>
-<td>all spermatocytes</td>
+<td><code>size</code></td>
+<td>block size (number of SNPs)</td>
+<td>0 to 10</td>
 </tr>
 <tr>
-<td><code>BSP-OR-10.*</code></td>
-<td>the chromosomes for the 10 worms with names BSP-OR-001, BSP-OR-002, ... BSP-OR-009.</td>
+<td><code>length</code></td>
+<td>block length (base pairs)</td>
+<td>0 1o 10000</td>
 </tr>
 <tr>
-<td><code>BSP-SR-.*-1</code></td>
-<td>chromosome 1 for all spermatocytes</td>
+<td><code>coverage</code></td>
+<td>minimum SNP coverage</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>match</code></td>
+<td>require genome match</td>
+<td>False (unchecked)</td>
 </tr>
 </tbody>
 </table>
-<h3 id="filter-options">Filter Options</h3>
-<p>The remaining options allow you to specify the filters to use.  There is one option for each of the filters shown in the GUI, so the plots that are made by this command are accurate summaries based on settings you make in the GUI.</p>
-<p>Two of the options (<code>--size</code> and <code>--length</code>) correspond to the interval selectors and require you to specify two values, the minimum and maximum slider locations.  If you don't specify these options the defaults displayed in the GUI are used: block size from 0 to 100 SNPs, block length from 0 to 10,000 bp.</p>
-<p>The <code>--coverage</code> option is a single integer based on the location of that slider in the GUI.  The default is 0.</p>
-<p>Use <code>--match</code> option if you clicked the checkbox labeled Genome Match.</p>
-<h3 id="example_1">Example</h3>
-<p>This command generates a histogram of block sizes (number of SNPs) using chromosome 1 from all worms, restricted to SNPs that have a genome match and using only blocks between 1 and 1000 bp long:</p>
-<pre><code class="language-bash">$ xo vis count --chr 'BSP-.*-1' --match --length 0 1000
+<p>The default is <code>BSP.*</code>, meaning "all chromosomes."</p>
+<p>If these options are not specified the defaults are the same as the initial settings shown in the GUI:  0 to 10 for block size, and 0 to 10,000 for block length.</p>
+<h3 id="name-patterns-in-shell-commands">Name Patterns in Shell Commands</h3>
+<p>The argument for the <code>--chromosome</code> option is a regular expression, and these expressions often contain asterisks.  For example, the pattern <code>BSP-.*-1</code> means "all names that start with <code>BSP-</code> and end with <code>-1</code> with any characters in between", in other words, "chromosome 1 from all worms."</p>
+<p>We need to be careful when we use this pattern in a shell command.  When a shell sees an asterisk, it thinks you are typing the name of a file, and it tries to look for all files with names that match the pattern.</p>
+<p>To prevent this behavior, we have to <strong>enclose the pattern in single quotes</strong>.  This is how we would create a histogram of block sizes using only chromosome 1 from each worm:</p>
+<pre><code class="language-bash">$ xo vis count --chromosomes 'BSP-.*-1'
 </code></pre>
+<blockquote>
+<p><strong>Note:</strong>  File name expansion -- called "globbing" in the Unix world -- is done by the shell.  The shell tries to look for files with matching names before it even starts the <code>xo</code> command.  If you leave out the quotes you're likely to see an error message like this:</p>
+<p><code>zsh: no matches found: BSP-.*-1</code></p>
+<p>Notice how this error is coming from the shell (<code>zsh</code> in this case, the default shell on macOS) and not from the <code>xo</code> program, which is never even started.</p>
+</blockquote>
+<h3 id="examples">Examples</h3>
+<p>For other examples of chromosome name patterns see the Chromosome Names section of the GUI documentation.</p>
               
             </div>
           </div><footer>

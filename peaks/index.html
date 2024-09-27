@@ -50,11 +50,17 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Peak Finder</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#look-for-valleys-as-well-as-peaks">Look for Valleys as Well as Peaks</a>
+    <li class="toctree-l2"><a class="reference internal" href="#searching-for-blocks-of-snps">Searching for Blocks of SNPs</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#non-crossovers">Non-Crossovers</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#maximum-block-size">Maximum Block Size</a>
+    <li class="toctree-l3"><a class="reference internal" href="#look-for-valleys-as-well-as-peaks">Look for Valleys as Well as Peaks</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#no-crossover">No Crossover</a>
+    <li class="toctree-l3"><a class="reference internal" href="#maximum-block-size">Maximum Block Size</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#no-crossovers">No Crossovers</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#shell-command">Shell Command</a>
     </li>
@@ -64,7 +70,7 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Crossover Explorer Documentation</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Developer Documentation</span></p>
@@ -115,19 +121,20 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="peak-finder">Peak Finder</h1>
-<p>This application scans a chromosome to look for sequences of SNPs that are potentially associated with crossover or non-crossover events.</p>
-<p>The name "peak finder" comes from the method we use to look for these events.  We define a <strong>signal function</strong> that is based on counting the number of SNPs.  At any location <em>x</em> in the chromosome, let <em>f</em> be the total number of CB4856 SNPs seen up to that point, and let <em>g</em> be the total number of N2 SNPs seen to that point.  Then our signal function is simply <em>f</em> − <em>g</em>.  As we move across the chromosome, the signal goes up whenever we encounter a CB4856 SNP and goes down whenever we see an N2 SNP.</p>
-<p>As an example, suppose a chromosome has a single crossover point, and that before that point all the SNPs are from the CB4856 parent, and after that point all the SNPs are from the N2 parent. The signal will increase monotonically up to that point and then decrease monotonically after that.  The signal has one peak, at exactly the location where the crossover occurred.</p>
-<p>If there are non-crossover events, we expect to see small regions where SNPs from the other parent occur somewhere in the middle of the long sequences before and after the main crossover point.  These will appear as small "blips" in the signal:  a short drop in the region that is otherwise increasing, or a short rise in the region that is otherwise decreasing.</p>
+<p>This script scans a chromosome to look for sequences of SNPs that are potentially associated with crossover or non-crossover events.</p>
+<h2 id="searching-for-blocks-of-snps">Searching for Blocks of SNPs</h2>
+<p>The name "peak finder" comes from the method we use to look for these events.  We define a <strong>signal function</strong> that is based on counting the number of SNPs.  At any location in the chromosome, let <em>f</em> be the total number of CB4856 SNPs seen up to that point, and let <em>g</em> be the total number of N2 SNPs seen to that point.  Then our signal function is simply <em>f</em> − <em>g</em>.  As we move across the chromosome, the signal goes up whenever we encounter a CB4856 SNP and goes down whenever we see an N2 SNP.</p>
+<p>As an example, suppose a chromosome has a single crossover point: before the location of the point all the SNPs are from the CB4856 parent, and after this location all the SNPs are from the N2 parent. The signal will increase monotonically up to location of the point and then decrease monotonically.  The signal has one peak, at exactly the location where the crossover occurred.</p>
+<h3 id="non-crossovers">Non-Crossovers</h3>
+<p>If there are non-crossover events, we expect to see small regions where SNPs from one parent occur somewhere in the middle of a long sequence from the other parent.  These will appear as small "blips" in the signal:  a short drop in the region that is otherwise increasing, or a short rise in the region that is otherwise decreasing.</p>
 <p>We use the <code>find_peaks</code> function from the NumPy signal processing library to look for these regions in our signal function.  We define a <strong>block</strong> to be the set of SNPs from the start to the end of one of the regions identified by the peak finder.</p>
-<p>The output is a CSV file that has all the SNPs from these blocks.</p>
-<h4 id="look-for-valleys-as-well-as-peaks">Look for Valleys as Well as Peaks</h4>
+<h3 id="look-for-valleys-as-well-as-peaks">Look for Valleys as Well as Peaks</h3>
 <p>Some chromosomes will have N2 SNPs before the main crossover point and CB4856 SNPs after that.  In this case the signal decreases before the crossover and increases after that point, so the crossover is at a location where there is a "valley" and not a peak.  The NumPy function returns locations of both peaks and valleys, and our code saves locations from each type of "blip".</p>
-<h4 id="maximum-block-size">Maximum Block Size</h4>
+<h3 id="maximum-block-size">Maximum Block Size</h3>
 <p>If a chromosome has a single crossover, the peak finding algorithm will think the sequence from the start of the chromosome up to the crossover location is a block, and the sequence from the crossover point to the end of the chromosome is another block.  </p>
 <p>To prevent these two blocks from being included in the output the script has a block size limit, which is the maximum number of SNPs that can be included in a block.</p>
 <p>There are also "pathological" cases where there are small blips inside a longer region that also stands out from the background.  In these situations the peak finder reports the coordinates of the longer enclosing block along with the locations of the smaller blocks nested inside.  Choosing a smaller block size limit will prevent the enclosing block from being included in the output while still including the smaller blocks.</p>
-<h4 id="no-crossover">No Crossover</h4>
+<h3 id="no-crossovers">No Crossovers</h3>
 <p>Some chromosomes in the data set have no crossover points.  In these situations the peak finder will not find a peak or a valley and the output file will have no blocks for this chromosome.</p>
 <h2 id="shell-command">Shell Command</h2>
 <p>To run the peak finder with the default options type</p>
@@ -141,7 +148,7 @@
 </ul>
 <h2 id="output-file">Output File</h2>
 <p>The data written by this command is saved in a CSV file.</p>
-<p>Each row in the file is a SNP.  The lines are exact copies of the lines from the original input file, including the original SNP ID in the first column.</p>
+<p>Each row in the file is a SNP that occurs in a block identified by the peak finder.  The lines are exact copies of the lines from the original input file, including the original SNP ID in the first column.</p>
 <p>One new column has been appended to each line.  This column is a block ID number, which allows the GUI and visualization commands to group SNPs by blocks.</p>
               
             </div>
