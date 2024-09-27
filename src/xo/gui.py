@@ -13,6 +13,7 @@ import io
 import pandas as pd
 import panel as pn
 import numpy as np
+import logging
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import CSS4_COLORS as colors
@@ -213,11 +214,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         Arguments:
           args:  command line arguments 
         '''
-        print('loading interval data')
+        logging.info('loading interval data')
         self.intervals = pd.read_pickle(args.intervals, compression='gzip').groupby('chrom_id')
         self.clist = list(self.intervals.groups.keys())
         self.cmap = { name: i for i, name in enumerate(self.clist)}
-        print('loading peak data')
+        logging.info('loading peak data')
         self.filter.load_data(args.peaks)
 
         # setting a value in the chromosome name widget triggers an update
@@ -455,13 +456,13 @@ def start_app(args):
     try:
         app = make_app(args)
         pn.serve( 
-            {'peaks': app},
+            app,
             port = args.port,
             verbose = True,
             autoreload = True,
             websocket_origin= '*',
         )
     except Exception as err:
-        print(err)
+        logging.error(err)
 
 

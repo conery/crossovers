@@ -1,1 +1,29 @@
-site_name: My Docs
+site_name: Crossover Explorer
+
+theme:
+  name: "readthedocs"
+
+extra_css:
+  - css/xo.css
+  
+plugins:
+  - search
+  - mkdocstrings
+
+nav:
+  - "Home":
+    - "Getting Started": index.md
+  - "Running the Applications":
+    - peaks.md
+    - gui.md
+    - vis.md
+  - "Developer Documentation":
+    - modules.md
+    - "Widgets":
+      - "Widget Classes": widgets.md
+      - "Filter Box": filterbox.md
+      - "Chromosome Display": chromosomes.md
+      - "PeakViewerApp": app.md
+    - "Filters": filters.md
+    - main.md
+    - tests.md
