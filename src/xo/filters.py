@@ -9,6 +9,8 @@
 import pandas as pd
 import re
 
+# Chromosome lengths
+
 chr_length = {
     1: 15114068,
     2: 15311845,
