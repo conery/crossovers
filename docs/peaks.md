@@ -6,7 +6,7 @@ This script scans a chromosome to look for sequences of SNPs that are potentiall
 
 The name "peak finder" comes from the method we use to look for these events.  We define a **signal function** that is based on counting the number of SNPs.  At any location in the chromosome, let *f* be the total number of CB4856 SNPs seen up to that point, and let *g* be the total number of N2 SNPs seen to that point.  Then our signal function is simply *f* − *g*.  As we move across the chromosome, the signal goes up whenever we encounter a CB4856 SNP and goes down whenever we see an N2 SNP.
 
-As an example, suppose a chromosome has a single crossover point: before the location of the point all the SNPs are from the CB4856 parent, and after this location all the SNPs are from the N2 parent. The signal will increase monotonically up to location of the point and then decrease monotonically.  The signal has one peak, at exactly the location where the crossover occurred.
+As an example, suppose a chromosome has a single crossover point: before the location of the point all the SNPs are from the CB4856 parent, and after this location all the SNPs are from the N2 parent. The signal will increase monotonically up to location of the point and then decrease monotonically.  The signal has one peak, at the location where the crossover occurred.
 
 ### Non-Crossovers
 
