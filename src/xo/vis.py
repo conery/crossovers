@@ -30,11 +30,26 @@ filter_params = {
 }
 
 def set_params(filter, args):
+    '''
+    Scan the command line arguments to find filtering parameters,
+    save values in the filter so they can be applied.
+
+    Arguments:
+      filter: the SNPFilter object that will do the filtering
+      args: command line arguments
+    '''
     for arg, attr in filter_params.items():
         if val := vars(args).get(arg):
             setattr(filter, attr, val)
 
 def count_histogram(df, args):
+    '''
+    Use matplotlib to create and display at histogram of block sizes.
+
+    Arguments:
+      df:  the summary data frame created by applying filters
+      args:  command line arguments
+    '''
     fig, ax = plt.subplots()
     plt.hist(df.blk_size, bins=10, rwidth=0.8, align='left', range=(1,100), label=args.chromosomes)
     plt.title('Block Size')
@@ -44,6 +59,13 @@ def count_histogram(df, args):
     plt.show()
 
 def length_histogram(df, args):
+    '''
+    Use matplotlib to create and display at histogram of block lengths.
+
+    Arguments:
+      df:  the summary data frame created by applying filters
+      args:  command line arguments
+    '''
     fig, ax = plt.subplots()
     plt.hist(df.blk_len, bins=10, rwidth=0.8, label=args.chromosomes)
     plt.title('Block Length')
@@ -52,7 +74,14 @@ def length_histogram(df, args):
     plt.legend(handlelength=0)
     plt.show()
 
-def location_histogram(df, args):   
+def location_histogram(df, args):
+    '''
+    Use matplotlib to create and display at histogram of block locations.
+
+    Arguments:
+      df:  the summary data frame created by applying filters
+      args:  command line arguments
+    '''
     fig, ax = plt.subplots()
     plt.hist(df.blk_loc, bins=100, range=(0,1), label=args.chromosomes)
     plt.title('Block Location')
@@ -63,6 +92,14 @@ def location_histogram(df, args):
 
 
 def visualize(args):
+    '''
+    Main function of the `vis` script.  Creates a SNPFilter object, saves
+    filtering parameters found on the command line, loads and filters the
+    SNP data, generates a histogram.
+
+    Arguments:
+      args:  command line arguments
+    '''
     matplotlib.rcParams.update({'font.size': 12})
 
     dispatch = {

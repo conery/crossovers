@@ -1,4 +1,4 @@
-## Widget Classes
+# Widget Classes
 
 The GUI displayed in a user's browser shows dozens of graphical elements.
 These "widgets" include sliders to specify block sizes and buttons that select

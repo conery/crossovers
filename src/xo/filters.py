@@ -40,8 +40,10 @@ class SNPFilter:
     def __init__(self):
         self._snps = None
         self._chromosome = 'BSP.*'
-        self._size_range = (1,100)
-        self._length_range = (1, 10000)
+        self._min_size = 1
+        self._max_size = 100
+        self._min_length = 1
+        self._max_length = 10000
         self._coverage = 0
         self._matched = False
         self._groups = None
@@ -81,20 +83,22 @@ class SNPFilter:
     @property
     def size_range(self):
         '''Minimum and maximum block size (number of SNPs)'''
-        return self._size_range
+        return (self._min_size, self._max_size)
     
     @size_range.setter
     def size_range(self, limits):
-        self._size_range = limits
+        self._min_size = limits[0]
+        self._max_size = limits[1]
 
     @property
     def length_range(self):
-        '''"Minimum and maximum block length (bp)"'''
-        return self._length_range
+        '''Minimum and maximum block length (bp)'''
+        return (self._min_length, self._max_length)
     
     @length_range.setter
     def length_range(self, limits):
-        self._length_range = limits
+        self._min_length = limits[0]
+        self._max_length = limits[1]
 
     @property
     def matched(self):
@@ -118,6 +122,16 @@ class SNPFilter:
         '''
         Apply the match and coverage criteria to a single chromosome, return the 
         filtered SNPs grouped by blocks and a summary table.
+
+        If a chromosome ID is passed apply the filters to that chromosome only,
+        otherwise use the complete set of all SNPs.
+
+        The first step is to make a subset of SNPs that pass the coverage and match
+        filters.  The resulting frame is then grouped by block.
+
+        The second step makes a separate summary frame based on size and location of
+        each block.  This frame is then filtered using the block size and block length
+        filters.
 
         Arguments:
           chr_id:  the ID of the chromosome to use
@@ -155,12 +169,13 @@ class SNPFilter:
             ],
             axis=1
         )
-        print(sf.head())
+        min_size = sf.blk_size >= self._min_size
+        max_size = sf.blk_size <= self._max_size
+        min_len = sf.blk_len >= self._min_length
+        max_len = sf.blk_len <= self._max_length
 
-        min_size = sf.blk_size >= self._size_range[0]
-        max_size = sf.blk_size <= self._size_range[1]
-        min_len = sf.blk_len >= self._length_range[0]
-        max_len = sf.blk_len <= self._length_range[1]
+        sf = sf[min_size & max_size & min_len & max_len]
+        logging.info(f'summary has {sf.blk_size.sum()} SNPs in {len(sf)} blocks')
 
-        return groups, sf[min_size & max_size & min_len & max_len]
+        return groups, sf
     

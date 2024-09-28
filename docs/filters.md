@@ -1,11 +1,19 @@
 # Filters
 
-All of the code for the crossover explorer GUI is in a single Python file
-named `gui.py`.
-The main sections of this file are:
+The `filter` module defines a class named SNPFilter.
+An app creates an instance of this class to act as an interface to the full set of SNPs.
+The general workflow is:
 
-* definitions of the "filter widgets" (sliders and checkboxes for setting filtering options)
-* a class named `PeakViewerApp` that defines the Panel app and lays out the widgets;
-the class also defines methods that display a chromosome and handle events by invoking "callback" functions
-* code that creates and launches the viewer
+* call the method that loads SNP data from a CSV file
+* assign values for filtering criteria (block size, _etc_)
+* call the `apply` method to apply the filters
 
+::: src.xo.filters
+    options:
+      show_root_toc_entry: false
+      docstring_options:
+        ignore_init_summary: true
+      merge_init_into_class: true
+      heading_level: 3
+      filters: ""
+      members_order: source
