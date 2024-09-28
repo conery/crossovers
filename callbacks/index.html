@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Callback Functions - Crossover Explorer</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../css/xo.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Callback Functions";
+        var mkdocs_page_input_path = "callbacks.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Crossover Explorer
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="..">Getting Started</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Running the Applications</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Peak Finder</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../modules/">Source Directory</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Modules</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../main/">xo</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../filters/">filters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../peaks_module/">peaks</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >gui</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../gui_module/">gui</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../widgets/">Widget Classes</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../filterbox/">Filter Widgets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../app/">PeakViewerApp</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../chromosomes/">Chromosome Display</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">Callback Functions</a>
+    <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#filter_cb">filter_cb</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#change_chromosome_cb">change_chromosome_cb</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#chromosome_edited_cb">chromosome_edited_cb</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#toggle_text_cb">toggle_text_cb</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#summary_plot_cb">summary_plot_cb</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#download_cb">download_cb</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../start_app/">Creating and Starting the GUI</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../vis_module/">vis</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Crossover Explorer</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer</li>
+          <li class="breadcrumb-item">Modules</li>
+          <li class="breadcrumb-item">gui</li>
+      <li class="breadcrumb-item active">Callback Functions</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="callback-functions">Callback Functions</h1>
+<p>The functions that are called when a widget is activated all have the same form:</p>
+<pre><code>def cb(self, e):
+    ...
+</code></pre>
+<p>The first argument is always <code>self</code> because the callbacks in this application are all
+methods defined in the PeakViewerApp class.
+That allows them to access the data and other parts of the GUI if needed.</p>
+<p>The second argument is an <strong>event</strong> object.
+It has several attributes, but the one we use most often is a reference to the widget
+that caused the event.</p>
+<p>Here is an example. 
+When one of the buttons next to the chromosome name in the main display is clicked we want to update the display to show the next or previous chromsome in the data set.
+The code that sets up the application attaches this callback to both buttons:</p>
+<pre><code>def change_chromosome_cb(self, e):
+    delta = 1 if e.obj is self.forward_button else -1
+    self.chr_index = (self.chr_index + delta) % len(self.clist)
+    ...
+</code></pre>
+<p>The goal is to update the value of the variable that holds the current chromosome ID.
+If the user clicked the forward button we want to add 1, otherwise we want to subtract 1.
+The first statement looks at <code>e.obj</code>, which is a reference to the widget that triggered this event, and assigns <code>delta</code> to be either 1 or -1, depending on which button was clicked.
+The second line updates the chromosome ID.</p>
+<h3 id="filter_cb"><code>filter_cb</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Callback function invoked when any of the widgets used for filtering (sliders,
+checkbox, etc) is activated.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback function invoked when any of the widgets used for filtering (sliders,</span>
+<span class="sd">    checkbox, etc) is activated.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">filter_cb</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">display_chromosome</span><span class="p">()</span>        
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="change_chromosome_cb"><code>change_chromosome_cb</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Callback function invoked when the left or right button next to the chromosome
+name is clicked.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">change_chromosome_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback function invoked when the left or right button next to the chromosome</span>
+<span class="sd">    name is clicked.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">obj</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_button</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">chr_index</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chr_index</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">chromosome_id</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">chr_index</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="chromosome_edited_cb"><code>chromosome_edited_cb</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Callback function invoked whenever the chromosome ID is updated.  This will
+happen when the user edits the chromosome name or the name changes after
+a button click.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">chromosome_edited_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback function invoked whenever the chromosome ID is updated.  This will</span>
+<span class="sd">    happen when the user edits the chromosome name or the name changes after</span>
+<span class="sd">    a button click.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chr_index</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chromosome_id</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display_chromosome</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="toggle_text_cb"><code>toggle_text_cb</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Callback function invoked when a toggle button in the chromosome display is clicked.
+Toggles the visibility of the frame and updates the button name based on the new
+visibility state.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">toggle_text_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback function invoked when a toggle button in the chromosome display is clicked.</span>
+<span class="sd">    Toggles the visibility of the frame and updates the button name based on the new</span>
+<span class="sd">    visibility state.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">block_text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">visible</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">block_buttons</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;∨&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">visible</span> <span class="k">else</span> <span class="s1">&#39;&gt;&#39;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="summary_plot_cb"><code>summary_plot_cb</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Callback function invoked when the user clicks the name of one of the 
+histograms in the summary tab.  All histograms have the same basic parameters,
+those that are specific to a type of data are defined in the
+<code>histogram_params</code> dictionary.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">summary_plot_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback function invoked when the user clicks the name of one of the </span>
+<span class="sd">    histograms in the summary tab.  All histograms have the same basic parameters,</span>
+<span class="sd">    those that are specific to a type of data are defined in the</span>
+<span class="sd">    `histogram_params` dictionary.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">histogram_params</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">loading</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># self.filter.set_chromosome(self.chromosome_pattern.value)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">chromosome</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chromosome_pattern</span><span class="o">.</span><span class="n">value</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">summary_df</span><span class="p">[</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;col&#39;</span><span class="p">]],</span> <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chromosome_pattern</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;hist&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;xlabel&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ylabel&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handlelength</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">loading</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Matplotlib</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">download_button</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="download_cb"><code>download_cb</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Callback function invoked when the user clicks the download button (made 
+visible after plotting a histogram).</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback function invoked when the user clicks the download button (made </span>
+<span class="sd">    visible after plotting a histogram).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">sio</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">summary_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">sio</span><span class="p">)</span>
+    <span class="n">sio</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sio</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../chromosomes/" class="btn btn-neutral float-left" title="Chromosome Display"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../start_app/" class="btn btn-neutral float-right" title="Creating and Starting the GUI">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../chromosomes/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../start_app/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

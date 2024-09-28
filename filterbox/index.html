@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Filter Widgets - Crossover Explorer</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../css/xo.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Filter Widgets";
+        var mkdocs_page_input_path = "filterbox.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Crossover Explorer
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="..">Getting Started</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Running the Applications</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Peak Finder</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../modules/">Source Directory</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Modules</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../main/">xo</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../filters/">filters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../peaks_module/">peaks</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >gui</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../gui_module/">gui</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../widgets/">Widget Classes</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">Filter Widgets</a>
+    <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#filterbox">FilterBox</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#blocksizefilterwidget">BlockSizeFilterWidget</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#blocklengthfilterwidget">BlockLengthFilterWidget</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#coveragefilterwidget">CoverageFilterWidget</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#supportfilterwidget">SupportFilterWidget</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../app/">PeakViewerApp</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../chromosomes/">Chromosome Display</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../callbacks/">Callback Functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../start_app/">Creating and Starting the GUI</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../vis_module/">vis</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Crossover Explorer</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer</li>
+          <li class="breadcrumb-item">Modules</li>
+          <li class="breadcrumb-item">gui</li>
+      <li class="breadcrumb-item active">Filter Widgets</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="filter-widgets">Filter Widgets</h1>
+<p>Five new classes are defined the beginning of <code>gui.py</code>.
+Four of them are used to define the widgets that control filter parameters:</p>
+<ul>
+<li>BlockSizeFilterWidget is an integer range slider to specify minimum and maximum block sizes</li>
+<li>BlockLengthFilterWidget is another integer range slider, for block lengths</li>
+<li>CoverageFilterWidget is a single-value integer slider</li>
+<li>SupportFilterWidget is a checkbox that is either on or off</li>
+</ul>
+<p>The initialization methods for each widget defines the widget's name (which will be
+displayed above the widget when it is shown in the GUI) and sets its initial values.</p>
+<p>Initialization methods are also passed a reference to a SNPFilter
+object that has the code that will do the actual filtering before a chromosome is displayed.
+When a filter widget is updated (<em>e.g.</em> when the user moves a slider) a "callback function"
+is activated.  The function will record the new setting in the SNPFilter so it is used
+the next time the filter is called.</p>
+<p>The fifth class, called FilterBox, is a type of widget called a "layout".
+It provides a way to collect all the filter widgets in a single location and provides a common interface to all the filters.</p>
+<h2 id="filterbox">FilterBox</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="panel.Column">Column</span></code></p>
+
+
+        <p>A FilterBox is a column layout that has a label and an instance
+of each of the filter widgets.</p>
+
+        <p>in the order they will be displayed.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>f</code></b>
+              –
+              <div class="doc-md-description">
+                <p>the filter object with the method that does the filtering (passed to
+  the constructors for each filter widget)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+                  <details class="quote">
+                    <summary>Source code in <code>src/xo/gui.py</code></summary>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The `__init__` method instantiates the widgets that will</span>
+<span class="sd">    filter SNPs and puts them in the Column</span>
+<span class="sd">    in the order they will be displayed.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">      f:  the filter object with the method that does the filtering (passed to</span>
+<span class="sd">          the constructors for each filter widget)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">FilterBox</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_widgets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">BlockSizeFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> 
+        <span class="n">BlockLengthFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> 
+        <span class="n">CoverageFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> 
+        <span class="n">SupportFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span><span class="s2">&quot;&lt;h3&gt;Filters&lt;/h3&gt;&quot;</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_widgets</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="src.xo.gui.FilterBox.widgets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">widgets</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a list of filter widgets.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Return a list of filter widgets.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_widgets</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="blocksizefilterwidget">BlockSizeFilterWidget</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="panel.widgets.IntRangeSlider">IntRangeSlider</span></code></p>
+
+
+        <p>Use an integer range slider to provide settings for the
+filter based on the count of the number of SNPs in a block.</p>
+
+                  <details class="quote">
+                    <summary>Source code in <code>src/xo/gui.py</code></summary>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Arguments:</span>
+<span class="sd">      f:  the SNPFilter object that will do the filtering.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">BlockSizeFilterWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Block Size (#SNPs)&#39;</span><span class="p">,</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">f</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="src.xo.gui.BlockSizeFilterWidget.filter_cb" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">filter_cb</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Callback activated when the slider changes.  Saves the new
+slider settings in the filter object.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback activated when the slider changes.  Saves the new</span>
+<span class="sd">    slider settings in the filter object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">size_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="blocklengthfilterwidget">BlockLengthFilterWidget</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="panel.widgets.IntRangeSlider">IntRangeSlider</span></code></p>
+
+
+        <p>Use an integer range slider to provide settings for the
+filter based on length of a block, defined as the number
+of bases between the first and last SNP.</p>
+
+                  <details class="quote">
+                    <summary>Source code in <code>src/xo/gui.py</code></summary>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Arguments:</span>
+<span class="sd">      f:  the SNPFilter object that will do the filtering.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">BlockLengthFilterWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Block Length (bp)&#39;</span><span class="p">,</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>     
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">f</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="src.xo.gui.BlockLengthFilterWidget.filter_cb" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">filter_cb</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Callback activated when the slider changes.  Saves the new
+slider settings in the filter object.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback activated when the slider changes.  Saves the new</span>
+<span class="sd">    slider settings in the filter object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">length_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="coveragefilterwidget">CoverageFilterWidget</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="panel.widgets.IntSlider">IntSlider</span></code></p>
+
+
+        <p>Use an integer slider to display the coverage cutoff value.</p>
+
+                  <details class="quote">
+                    <summary>Source code in <code>src/xo/gui.py</code></summary>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Arguments:</span>
+<span class="sd">      f:  the filter object with the method that does the filtering</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">CoverageFilterWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Minimum Coverage&#39;</span><span class="p">,</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;coverage&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">f</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="src.xo.gui.CoverageFilterWidget.filter_cb" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">filter_cb</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Callback activated when the slider changes.  Saves the new
+slider settings in the filter object.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback activated when the slider changes.  Saves the new</span>
+<span class="sd">    slider settings in the filter object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">coverage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="supportfilterwidget">SupportFilterWidget</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="panel.widgets.Checkbox">Checkbox</span></code></p>
+
+
+        <p>Use a checkbox to tell the filter to keep SNPs if the base genome
+column matches the HMM state column.</p>
+
+                  <details class="quote">
+                    <summary>Source code in <code>src/xo/gui.py</code></summary>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Arguments:</span>
+<span class="sd">      f:  the filter object with the method that does the filtering</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SupportFilterWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Genome Match&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">f</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="src.xo.gui.SupportFilterWidget.filter_cb" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">filter_cb</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Callback activated when the slider changes.  Saves the new
+slider settings in the filter object.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Callback activated when the slider changes.  Saves the new</span>
+<span class="sd">    slider settings in the filter object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">matched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../widgets/" class="btn btn-neutral float-left" title="Widget Classes"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../app/" class="btn btn-neutral float-right" title="PeakViewerApp">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../widgets/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../app/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Chromosome Display - Crossover Explorer</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../css/xo.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Chromosome Display";
+        var mkdocs_page_input_path = "chromosomes.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Crossover Explorer
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="..">Getting Started</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Running the Applications</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Peak Finder</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../modules/">Source Directory</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Modules</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../main/">xo</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../filters/">filters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../peaks_module/">peaks</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" >gui</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../gui_module/">gui</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../widgets/">Widget Classes</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../filterbox/">Filter Widgets</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../app/">PeakViewerApp</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">Chromosome Display</a>
+    <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#display_chromosome">display_chromosome</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_make_patches">_make_patches</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_make_grid">_make_grid</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../callbacks/">Callback Functions</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../start_app/">Creating and Starting the GUI</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../vis_module/">vis</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Crossover Explorer</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer</li>
+          <li class="breadcrumb-item">Modules</li>
+          <li class="breadcrumb-item">gui</li>
+      <li class="breadcrumb-item active">Chromosome Display</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="chromosome-display">Chromosome Display</h1>
+<p>The function that displays a chromosome is a method named <code>display_chromosome</code>,
+defined in the PeakViewerApp class.</p>
+<p>The method is called whenver the user clicks the left or right button next to
+the chromosome name or edits the chromosome name.</p>
+<p>To break the code into manageable pieces there are two "helper methods":</p>
+<ul>
+<li><code>_make_patches</code> builds a list of rectangles for the "ribbon" display</li>
+<li><code>_make_grid</code> builds the column of blocks, interleaving graphical representations
+of the SNPs with a text view of the dataframe</li>
+</ul>
+<h3 id="display_chromosome"><code>display_chromosome</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Update the chromosome display.  Called whenever the chromosome ID changes.  Shows
+a set of rectangular patches where the color is based on the region identified by 
+the HMM.  Below that is a grid with one row for each block of SNPs identifed by
+the peak finder.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">display_chromosome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Update the chromosome display.  Called whenever the chromosome ID changes.  Shows</span>
+<span class="sd">    a set of rectangular patches where the color is based on the region identified by </span>
+<span class="sd">    the HMM.  Below that is a grid with one row for each block of SNPs identifed by</span>
+<span class="sd">    the peak finder.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">chr_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chromosome_id</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">chrom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">chr_id</span><span class="p">)</span>
+    <span class="n">rects</span> <span class="o">=</span> <span class="n">PatchCollection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_patches</span><span class="p">(</span><span class="n">chrom</span><span class="p">),</span> <span class="n">match_original</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20000000</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span><span class="si">}</span><span class="s1">Mbp&#39;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">rects</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20000000</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2000000</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="n">graphic</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Matplotlib</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">has_chromosome_block</span><span class="p">(</span><span class="n">chr_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">chr_id</span><span class="p">)</span>
+        <span class="c1"># self._make_dots()</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_grid</span><span class="p">()</span>
+        <span class="n">graphic</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tabs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">graphic</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="_make_patches"><code>_make_patches</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Create a horizontal bar as a collection of rectangular patches, with one
+patch for each row in the data frame.  The rows have the starting coordinates
+lengths, and HMM states of chromosome regions, used to define the width and
+color of a patch.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">_make_patches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a horizontal bar as a collection of rectangular patches, with one</span>
+<span class="sd">    patch for each row in the data frame.  The rows have the starting coordinates</span>
+<span class="sd">    lengths, and HMM states of chromosome regions, used to define the width and</span>
+<span class="sd">    color of a patch.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">pcolor</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;CB4856&#39;</span><span class="p">:</span> <span class="s1">&#39;dodgerblue&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;N2&#39;</span><span class="p">:</span> <span class="s1">&#39;indianred&#39;</span>
+    <span class="p">}</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">pcolor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">hmm_state</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;lightgray&#39;</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">r</span><span class="o">.</span><span class="n">start</span><span class="p">,</span><span class="mi">500000</span><span class="p">),</span> <span class="n">r</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">))</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Circle</span><span class="p">((</span><span class="n">r</span><span class="o">.</span><span class="n">start</span><span class="p">,</span><span class="mi">750000</span><span class="p">),</span> <span class="mi">50000</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><h3 id="_make_grid"><code>_make_grid</code></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Make a Column object that has a collection of figures, one for each block 
+in a chromosome (saved in an instance var).  The figures are saved in a grid.
+Below each figure is a text widget containing the data frame with the filtered 
+SNPs in the block, i.e. the grid for a chromosome with N blocks as 2*N rows.
+The frames are initially hidden.  The rows that have figures also have a toggle
+button; clicking this button will show or hide the frame.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/gui.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">_make_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Make a Column object that has a collection of figures, one for each block </span>
+<span class="sd">    in a chromosome (saved in an instance var).  The figures are saved in a grid.</span>
+<span class="sd">    Below each figure is a text widget containing the data frame with the filtered </span>
+<span class="sd">    SNPs in the block, i.e. the grid for a chromosome with N blocks as 2*N rows.</span>
+<span class="sd">    The frames are initially hidden.  The rows that have figures also have a toggle</span>
+<span class="sd">    button; clicking this button will show or hide the frame.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">pcolor</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;CB4856&#39;</span><span class="p">:</span> <span class="s1">&#39;dodgerblue&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;N2&#39;</span><span class="p">:</span> <span class="s1">&#39;indianred&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;uCB4856&#39;</span><span class="p">:</span> <span class="s1">&#39;lightsteelblue&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;uN2&#39;</span><span class="p">:</span> <span class="s1">&#39;lightpink&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;unknown&#39;</span><span class="p">:</span> <span class="s1">&#39;lightgray&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;het&#39;</span><span class="p">:</span> <span class="s1">&#39;palegoldenrod&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">block_buttons</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">block_text</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">blk_id</span><span class="p">,</span> <span class="n">blk_stats</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">blk_id</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mf">0.8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">position</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">blk_stats</span><span class="o">.</span><span class="n">blk_size</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">blk_stats</span><span class="o">.</span><span class="n">blk_len</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">position</span> <span class="o">-</span> <span class="n">x0</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">w</span><span class="p">)</span><span class="si">}</span><span class="s1">bp&#39;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Block #</span><span class="si">{</span><span class="n">blk_id</span><span class="si">}</span><span class="se">\n</span><span class="s1">Start: </span><span class="si">{</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="mi">1000000</span><span class="p">)</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">Mbp</span><span class="se">\n</span><span class="s1">Size: </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s1"> SNPs</span><span class="se">\n</span><span class="s1">Length: </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s1">bp&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s1">&#39;medium&#39;</span><span class="p">,</span><span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">snp</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">((</span><span class="n">snp</span><span class="o">.</span><span class="n">position</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">/</span> <span class="n">length</span><span class="p">)</span> <span class="k">if</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="mi">10</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Circle</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="mf">0.2</span><span class="p">),</span><span class="mf">0.1</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">pcolor</span><span class="p">[</span><span class="n">snp</span><span class="o">.</span><span class="n">base_geno</span><span class="p">]))</span>
+        <span class="n">dots</span> <span class="o">=</span> <span class="n">PatchCollection</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">match_original</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">dots</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_buttons</span><span class="p">[</span><span class="n">blk_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="n">blk_id</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_buttons</span><span class="p">[</span><span class="n">blk_id</span><span class="p">]</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toggle_text_cb</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">block</span><span class="p">[[</span><span class="s1">&#39;position&#39;</span><span class="p">,</span><span class="s1">&#39;base_geno&#39;</span><span class="p">,</span><span class="s1">&#39;hmm_state1&#39;</span><span class="p">,</span><span class="s1">&#39;reference&#39;</span><span class="p">,</span><span class="s1">&#39;ref_reads&#39;</span><span class="p">,</span><span class="s1">&#39;variant&#39;</span><span class="p">,</span><span class="s1">&#39;var_reads&#39;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_text</span><span class="p">[</span><span class="n">blk_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">block_buttons</span><span class="p">[</span><span class="n">blk_id</span><span class="p">],</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Matplotlib</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background&#39;</span><span class="p">:</span><span class="s1">&#39;WhiteSmoke&#39;</span><span class="p">},</span>
+        <span class="p">))</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">block_text</span><span class="p">[</span><span class="n">blk_id</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">g</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../app/" class="btn btn-neutral float-left" title="PeakViewerApp"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../callbacks/" class="btn btn-neutral float-right" title="Callback Functions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../app/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../callbacks/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
