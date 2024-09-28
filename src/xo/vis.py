@@ -78,7 +78,7 @@ def visualize(args):
     filter.load_data(args.peaks)
 
     logging.info('filtering')
-    summary = filter.summary()
+    _, summary = filter.apply()
 
     logging.info('plotting')
     dispatch[args.command](summary, args)

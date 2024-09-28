@@ -6,6 +6,7 @@
 # University of Oregon
 #
 
+import logging
 import pandas as pd
 import re
 
@@ -113,7 +114,7 @@ class SNPFilter:
     def coverage(self, n):
         self._coverage = n
 
-    def apply(self, chr_id):
+    def apply(self, chr_id = None):
         '''
         Apply the match and coverage criteria to a single chromosome, return the 
         filtered SNPs grouped by blocks and a summary table.
@@ -125,29 +126,28 @@ class SNPFilter:
           groups:  the blocks in the filtered chromosome
           summary:  a data frame with size, length, and location of each block
         '''
-        df = self._groups.get_group(chr_id)
+        if chr_id is None:
+            df = self._snps[self._snps.chrom_id.map(lambda s: bool(re.match(self._chromosome,s)))]
+        else:
+            df = self._groups.get_group(chr_id)
+
+        logging.info(f'Filtering {len(df)} SNPs')
+
         if self._matched:
             df = df[df.base_geno == df.hmm_state1]
+            logging.info(f'{len(df)} match')
+
         if self._coverage:
             df = df[df.var_reads + df.ref_reads > self._coverage]
-        return df.groupby('blk_id'), self.summary(df)
-    
-    def summary(self, df = None):
-        '''
-        Create a summary table (a data frame with columns for size, length, and location
-        of blocks in a data set) with descriptions of the groups that satisfy the block
-        size and length filters.  When called from the GUI, `df` is a frame with SNPs from
-        the current chromosome, and the result has blocks from only this chromosome.  When
-        called from the command line, `df` is None and the method uses the complete data set
-        and returns a summary indexed by chromosome and block.
-        '''
-        if df is None:
-            df = self._snps[self._snps.chrom_id.map(lambda s: bool(re.match(self._chromosome,s)))]
+            logging.info(f'{len(df)} have coverage > {self._coverage}')
+   
+        if chr_id is None:
             groups = df.groupby(['chrom_id', 'blk_id'])
         else:
             groups = df.groupby('blk_id')
+        logging.info(f'{len(groups)} groups')
 
-        data = pd.concat(
+        sf = pd.concat(
             [
                 groups.size().rename('blk_size'), 
                 (groups.max('position') - groups.min('position')).position.rename('blk_len'), 
@@ -155,9 +155,12 @@ class SNPFilter:
             ],
             axis=1
         )
-        min_size = data.blk_size >= self._size_range[0]
-        max_size = data.blk_size <= self._size_range[1]
-        min_len = data.blk_len >= self._length_range[0]
-        max_len = data.blk_len <= self._length_range[1]
-        return data[min_size & max_size & min_len & max_len]
+        print(sf.head())
+
+        min_size = sf.blk_size >= self._size_range[0]
+        max_size = sf.blk_size <= self._size_range[1]
+        min_len = sf.blk_len >= self._length_range[0]
+        max_len = sf.blk_len <= self._length_range[1]
+
+        return groups, sf[min_size & max_size & min_len & max_len]
     

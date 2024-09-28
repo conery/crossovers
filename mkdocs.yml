@@ -17,13 +17,18 @@ nav:
     - peaks.md
     - gui.md
     - vis.md
-  - "Developer Documentation":
-    - modules.md
-    - "Widgets":
-      - "Widget Classes": widgets.md
-      - "Filter Box": filterbox.md
-      - "Chromosome Display": chromosomes.md
-      - "PeakViewerApp": app.md
-    - "Filters": filters.md
-    - main.md
-    - tests.md
+  - "Developer":
+    - "Source Directory": modules.md
+    - "Modules":
+      - "xo": main.md
+      - "filters": filters.md
+      - "peaks": peaks_module.md
+      - "gui":
+        - "gui": gui_module.md
+        - "Widget Classes": widgets.md
+        - "Filter Widgets": filterbox.md
+        - "PeakViewerApp": app.md
+        - "Chromosome Display": chromosomes.md
+        - "Callback Functions": callbacks.md
+        - "Creating and Starting the GUI": start_app.md
+      - "vis": vis_module.md

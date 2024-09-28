@@ -23,6 +23,12 @@ from .gui import start_app
 from .vis import visualize, plot_commands
 
 def init_cli():
+    """
+    Use argparse to create the command line API.
+
+    Returns:
+        a Namespace object with values of the command line arguments. 
+    """
     snps_default = os.environ.get('XO_SNPS') or 'BSP_TIGER.marker_dataframe.pickle.gzip'
     intervals_default = os.environ.get('XO_INTERVALS') or 'BSP_TIGER.intervals_dataframe.pickle.gzip'
     peaks_default = os.environ.get('XO_PEAKS') or 'peaks.csv'
@@ -68,6 +74,10 @@ def init_cli():
     return parser.parse_args()
 
 def setup_logging(args):
+    """
+    Configure the logging modile.  Uncomment one of the first three
+    lines to define the logging level.
+    """
     level = logging.INFO
     # level = logging.DEBUG
     # level = logging.WARNING
@@ -82,6 +92,10 @@ def post(args):
     print('TBD')
 
 def main():
+    """
+    The argument parser associates a function with each script name, all
+    we need to do here is call that function.
+    """
     args = init_cli()
     setup_logging(args)
     args.func(args)

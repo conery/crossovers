@@ -27,13 +27,16 @@ pn.extension('tabulator')
 SIDEBAR_WIDTH = 350
 
 class BlockSizeFilterWidget(pn.widgets.IntRangeSlider):
-    '''
-    Display a filter based on the count of the number of SNPs in a block.
+    """
+    Use an integer range slider to provide settings for the
+    filter based on the count of the number of SNPs in a block.
+    """
 
-    Arguments:
-      f:  the filter object with the method that does the filtering
-    '''
     def __init__(self, f):
+        '''
+        Arguments:
+          f:  the SNPFilter object that will do the filtering.
+        '''
         super(BlockSizeFilterWidget,self).__init__(
             name = 'Block Size (#SNPs)',
             start = 0,
@@ -44,19 +47,25 @@ class BlockSizeFilterWidget(pn.widgets.IntRangeSlider):
         self.filter = f
 
     def filter_cb(self):
-        # self.filter.set_size(self.value)
+        '''
+        Callback activated when the slider changes.  Saves the new
+        slider settings in the filter object.
+        '''
         self.filter.size_range = self.value
 
 
 class BlockLengthFilterWidget(pn.widgets.IntRangeSlider):
-    '''
-    Display a filter based on the length of a block, defined as the number 
+    """
+    Use an integer range slider to provide settings for the
+    filter based on length of a block, defined as the number
     of bases between the first and last SNP.
+    """
 
-    Arguments:
-      f:  the filter object with the method that does the filtering
-    '''
     def __init__(self, f):
+        '''
+        Arguments:
+          f:  the SNPFilter object that will do the filtering.
+        '''
         super(BlockLengthFilterWidget,self).__init__(
             name = 'Block Length (bp)',
             start = 0,
@@ -68,19 +77,23 @@ class BlockLengthFilterWidget(pn.widgets.IntRangeSlider):
         self.filter = f
 
     def filter_cb(self):
-        # self.filter.set_length(self.value)
-        self.filter.length_ranged = self.value
+        '''
+        Callback activated when the slider changes.  Saves the new
+        slider settings in the filter object.
+        '''
+        self.filter.length_range = self.value
 
 
 class CoverageFilterWidget(pn.widgets.IntSlider):
-    '''
-    Keep SNPs if the number of reads (in either the reference or variant column)
-    is greater than a cutoff value. 
+    """
+    Use an integer slider to display the coverage cutoff value. 
+    """
 
-    Arguments:
-      f:  the filter object with the method that does the filtering
-    '''
     def __init__(self, f):
+        '''
+        Arguments:
+          f:  the filter object with the method that does the filtering
+        '''
         super(CoverageFilterWidget,self).__init__(
             name = 'Minimum Coverage',
             start = 0,
@@ -91,18 +104,24 @@ class CoverageFilterWidget(pn.widgets.IntSlider):
         self.filter = f
 
     def filter_cb(self):
-        # self.filter.set_coverage(self.value)
+        '''
+        Callback activated when the slider changes.  Saves the new
+        slider settings in the filter object.
+        '''
         self.filter.coverage = self.value
 
 
 class SupportFilterWidget(pn.widgets.Checkbox):
-    '''
-    Keep SNPs if the base genome column matches the HMM state column.
+    """
+    Use a checkbox to tell the filter to keep SNPs if the base genome
+    column matches the HMM state column.
+    """
 
-    Arguments:
-      f:  the filter object with the method that does the filtering
-    '''
     def __init__(self, f):
+        '''
+        Arguments:
+          f:  the filter object with the method that does the filtering
+        '''
         super(SupportFilterWidget,self).__init__(
             name = 'Genome Match',
         )
@@ -110,15 +129,23 @@ class SupportFilterWidget(pn.widgets.Checkbox):
         self.filter = f
 
     def filter_cb(self):
-        # self.filter.set_matched(self.value)
+        '''
+        Callback activated when the slider changes.  Saves the new
+        slider settings in the filter object.
+        '''
         self.filter.matched = self.value
 
 
 class FilterBox(pn.Column):
+    """
+    A FilterBox is a column layout that has a label and an instance
+    of each of the filter widgets.
+    """
 
     def __init__(self, f):
         '''
-        Instantiate the widgets that will filter SNPs and put them in a Column
+        The `__init__` method instantiates the widgets that will
+        filter SNPs and puts them in the Column
         in the order they will be displayed.
 
         Arguments:
@@ -126,7 +153,12 @@ class FilterBox(pn.Column):
               the constructors for each filter widget)
         '''
         super(FilterBox, self).__init__()
-        self._widgets = [cls(f) for cls in [BlockSizeFilterWidget, BlockLengthFilterWidget, CoverageFilterWidget, SupportFilterWidget]]
+        self._widgets = [
+            BlockSizeFilterWidget(f), 
+            BlockLengthFilterWidget(f), 
+            CoverageFilterWidget(f), 
+            SupportFilterWidget(f),
+        ]
         self.append(pn.pane.HTML("<h3>Filters</h3>"))
         self.extend(self._widgets)
 
@@ -138,19 +170,13 @@ class FilterBox(pn.Column):
         
 
 class PeakViewerApp(pn.template.BootstrapTemplate):
-    def __init__(self, **params):
-        """
-        Initialize the application.
 
-        Arguments:
-          params:  runtime options passed to the parent class constructor
-        """
+    def __init__(self, **params):
+
         super(PeakViewerApp, self).__init__(**params)
 
         self.filter = SNPFilter()
         self.filter_widgets = FilterBox(self.filter)
-        for w in self.filter_widgets.widgets():
-            w.param.watch(self.filter_cb, ['value'])
 
         button_style_sheet = ''':host(.solid) .bk-btn {
             --color: white;
@@ -161,9 +187,6 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.forward_button = pn.widgets.Button(name='▶︎', stylesheets=[button_style_sheet])
         self.chromosome_id = pn.widgets.TextInput(name="", value="")
 
-        for w in [self.back_button, self.forward_button]:
-            w.param.watch(self.change_chromosome_cb, ['value'])
-
         self.chromosome_pattern = pn.widgets.TextInput(name="Chromosomes", value="BSP.*")
         self.size_graph_button = pn.widgets.Button(name='Block Size', stylesheets=[button_style_sheet])
         self.length_graph_button = pn.widgets.Button(name='Block Length', stylesheets=[button_style_sheet])
@@ -173,10 +196,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.download_pane = pn.GridBox(self.download_button, height=200, width=SIDEBAR_WIDTH)
         self.download_button.visible = False
 
-        for w in [self.size_graph_button, self.length_graph_button, self.location_graph_button]:
-            w.param.watch(self.summary_plot_cb, ['value'])
-
-        self.chromosome_id.param.watch(self.chromosome_edited_cb, ['value'])      
+        self.attach_callbacks()
 
         chr_tab = pn.Column(
             pn.pane.HTML('<h3>Chromosome</h3>'),
@@ -202,11 +222,31 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
                 self.download_pane,
             )
         )
+
         self.main.append(self.tabs)
+
+    def attach_callbacks(self):
+        '''
+        This method is called after all of the widgets have been created.
+        It connects various widgets to functions that will be called when
+        the widgets are activated.
+        '''
+        for w in self.filter_widgets.widgets():
+            w.param.watch(self.filter_cb, ['value'])
+
+        for w in [self.back_button, self.forward_button]:
+            w.param.watch(self.change_chromosome_cb, ['value'])
+
+        for w in [self.size_graph_button, self.length_graph_button, self.location_graph_button]:
+            w.param.watch(self.summary_plot_cb, ['value'])
+
+        self.chromosome_id.param.watch(self.chromosome_edited_cb, ['value'])      
 
     def load_data(self, args):
         '''
-        Read the two data files needed by the application.  The interval data file has
+        This method is called from the top level application after the GUI has
+        been initialized.
+        It reads the two data files needed by the application.  The interval data file has
         the names of all the chromosomes (regardless of whether any SNPs were found); it's
         used to initialize the list of chromosome names.  The name of the SNP data file is
         passed to the filter object, which manages all the SNP data.
@@ -275,11 +315,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
     def _make_grid(self):
         '''
         Make a Column object that has a collection of figures, one for each block 
-        in a chromosome (saved in an instance var).  The figures are saved in a grid.  
+        in a chromosome (saved in an instance var).  The figures are saved in a grid.
         Below each figure is a text widget containing the data frame with the filtered 
-        SNPs in the block, i.e. the grid for a chromosome with N blocks as 2*N rows.  
-        The frames are initially hidden.  The rows that have figures also have a toggle 
-        button; clicking this button will show or hide the frame. 
+        SNPs in the block, i.e. the grid for a chromosome with N blocks as 2*N rows.
+        The frames are initially hidden.  The rows that have figures also have a toggle
+        button; clicking this button will show or hide the frame.
         '''
         pcolor = {
             'CB4856': 'dodgerblue',
@@ -314,7 +354,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             ax.add_collection(dots)
             plt.close(fig)
             self.block_buttons[blk_id] = pn.widgets.Button(name='>', align='center', tags=[blk_id])
-            self.block_buttons[blk_id].on_click(self.toggle_text)
+            self.block_buttons[blk_id].on_click(self.toggle_text_cb)
             df = block[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
             self.block_text[blk_id] = pn.pane.DataFrame(df, visible=False)
             g.append(pn.Row(
@@ -325,7 +365,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             g.append(pn.Row(self.block_text[blk_id]))
         return g
     
-    def toggle_text(self, e):
+    def toggle_text_cb(self, e):
         '''
         Callback function invoked when a toggle button in the chromosome display is clicked.
         Toggles the visibility of the frame and updates the button name based on the new
@@ -403,7 +443,8 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         '''
         Callback function invoked when the user clicks the name of one of the 
         histograms in the summary tab.  All histograms have the same basic parameters,
-        those that are specific to a type of data are defined in the dictionary above.
+        those that are specific to a type of data are defined in the
+        `histogram_params` dictionary.
         '''
         params = self.histogram_params[e.obj.name]
         self.tabs[1].loading = True
@@ -435,7 +476,10 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
 
 def make_app(args):
     """
-    Instantiate the top level widget.
+    Instantiate the top level widget, load data from the data files.
+
+    Arguments:
+      args: command line arguments (including names of data files)
 
     Returns:
         a PeakViewerApp object
@@ -449,7 +493,10 @@ def make_app(args):
 
 def start_app(args):
     """
-    Launch the Bokeh server.
+    Main entry point, called from the top level `xo` script.
+
+    Initialize the Panel library, instantiate the app, and pass
+    the app to the server.
     """
     pn.extension(design='native')
     pn.config.throttled = True

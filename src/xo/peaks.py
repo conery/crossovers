@@ -47,8 +47,9 @@ def extract_blocks(chromosome, max_block_size):
 
 def peak_finder(args):
     '''
-    Top level function.  Reads the SNP data, groups it by chromosome, and
-    calls `find_peaks` for each chromosome.  The results are collected in
+    Top level function for the `peaks` command.
+    Reads the SNP data, groups it by chromosome, and
+    calls `extract_blocks` for each chromosome.  The results are collected in
     a data frame and written to a CSV file.
 
     Arguments:
