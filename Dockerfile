@@ -13,6 +13,7 @@ ENV PYTHONUNBUFFERED=1
 # Define default paths to data files
 ENV XO_SNPS=/data/BSP_TIGER.marker_dataframe.pickle.gzip
 ENV XO_INTERVALS=/data/BSP_TIGER.intervals_dataframe.pickle.gzip
+ENV XO_CROSSOVERS=/data/BSP_COs_final_set.pickle.gzip
 ENV XO_PEAKS=/data/peaks.csv
 ENV XO_SAVE=/data/summary.csv
 

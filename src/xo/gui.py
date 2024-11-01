@@ -245,17 +245,22 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
     def load_data(self, args):
         '''
         This method is called from the top level application after the GUI has
-        been initialized.
-        It reads the two data files needed by the application.  The interval data file has
-        the names of all the chromosomes (regardless of whether any SNPs were found); it's
-        used to initialize the list of chromosome names.  The name of the SNP data file is
-        passed to the filter object, which manages all the SNP data.
+        been initialized. It reads the three data files needed by the application:
+          * the interval data file has the names of all the chromosomes 
+            (regardless of whether any SNPs were found); it's used to initialize the 
+            list of chromosome names.  
+          * the peaks data file (loaded by the filter object) has blocks of SNPs to
+            visualize
+          * the crossover data file has locations of main crossover points
 
         Arguments:
           args:  command line arguments 
         '''
         logging.info('loading interval data')
         self.intervals = pd.read_pickle(args.intervals, compression='gzip').groupby('chrom_id')
+        logging.info(f'read {len(self.intervals)} intervals')
+        self.crossovers = pd.read_pickle(args.crossovers, compression='gzip').groupby('chrom_id')
+        logging.info(f'read {len(self.crossovers)} crossovers')
         self.clist = list(self.intervals.groups.keys())
         self.cmap = { name: i for i, name in enumerate(self.clist)}
         logging.info('loading peak data')
@@ -271,7 +276,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         Update the chromosome display.  Called whenever the chromosome ID changes.  Shows
         a set of rectangular patches where the color is based on the region identified by 
         the HMM.  Below that is a grid with one row for each block of SNPs identifed by
-        the peak finder.
+        the peak finder.  Draw a vertical line at the crossover location (if there is one).
         '''
         chr_id = self.chromosome_id.value
         chrom = self.intervals.get_group(chr_id)
@@ -282,6 +287,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         plt.xticks(ticks=np.linspace(0,20000000,5), labels=[f'{int(n*20)}Mbp' for n in np.linspace(0,1,5)])
         ax.xaxis.set_ticks_position('top')
         ax.add_collection(rects)
+        if chr_id in self.crossovers.groups:
+            for _, xo in self.crossovers.get_group(chr_id).iterrows():
+                logging.info(f'crossover {xo.start} {xo.is_CO}')
+                if xo.is_CO:
+                    plt.axvline(xo.start, color='green')
         plt.xlim(0,20000000)
         plt.ylim(0,2000000)
         plt.close(fig)
@@ -355,7 +365,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             plt.close(fig)
             self.block_buttons[blk_id] = pn.widgets.Button(name='>', align='center', tags=[blk_id])
             self.block_buttons[blk_id].on_click(self.toggle_text_cb)
-            df = block[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads']]
+            df = block[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads','background']]
             self.block_text[blk_id] = pn.pane.DataFrame(df, visible=False)
             g.append(pn.Row(
                 self.block_buttons[blk_id],

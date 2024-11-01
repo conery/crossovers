@@ -31,6 +31,7 @@ def init_cli():
     """
     snps_default = os.environ.get('XO_SNPS') or 'BSP_TIGER.marker_dataframe.pickle.gzip'
     intervals_default = os.environ.get('XO_INTERVALS') or 'BSP_TIGER.intervals_dataframe.pickle.gzip'
+    crossovers_default = os.environ.get('XO_CROSSOVERS') or 'BSP_COs_final_set.pickle.gzip'
     peaks_default = os.environ.get('XO_PEAKS') or 'peaks.csv'
     save_default = os.environ.get('XO_SAVE') or 'summary.csv'
 
@@ -41,7 +42,8 @@ def init_cli():
     )
 
     peak_parser = subparsers.add_parser('peaks', help='find peaks in the SNP data')
-    peak_parser.add_argument('--snps', metavar='F', default=snps_default, help='input (IGER marker) file')
+    peak_parser.add_argument('--snps', metavar='F', default=snps_default, help='input (TIGER marker) file')
+    peak_parser.add_argument('--crossovers', metavar='F', default=crossovers_default, help='file with crossover locations')
     peak_parser.add_argument('--output', metavar='F', default=peaks_default, help='output file')
     peak_parser.add_argument('--max_snps', metavar='N', type=int, default=1000, help="max number of SNPs in a block")
     peak_parser.set_defaults(func=peak_finder)
@@ -49,6 +51,7 @@ def init_cli():
     gui_parser = subparsers.add_parser('gui', help='explore blocks of SNPs')
     gui_parser.add_argument('--intervals', metavar='F', default=intervals_default, help='SNP summaries')
     gui_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
+    gui_parser.add_argument('--crossovers', metavar='F', default=crossovers_default, help='file with crossover locations')
     gui_parser.add_argument('--port', metavar='N', type=int, default=5006, help='local port for the Panel server')
     gui_parser.set_defaults(func=start_app)
 

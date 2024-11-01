@@ -45,6 +45,46 @@ def extract_blocks(chromosome, max_block_size):
         blocks.append(df.assign(blk_id=i))
     return pd.concat(blocks) if blocks else None
 
+# Chromosome lengths
+
+chr_length = {
+    1: 15114068,
+    2: 15311845,
+    3: 13819453,
+    4: 17493838,
+    5: 20953657,
+    6: 17739129,
+}
+
+def add_background(cf, df):
+    '''
+    Use crossover locations to add a background location to a frame.
+
+    Arguments:
+      cf:  a data frame with crossover locations
+      df:  the frame to update
+
+    Returns:
+      a copy of df with a new background column added
+    '''
+    gen = df.iloc[0].hmm_state1
+    col = pd.Series(gen, index=df.index)
+    # print('default', gen)
+    if cf is not None:
+        left = 0
+        right = chr_length[df.iloc[0].chromosome]
+        for _, xo in cf.iterrows():
+            mid = xo.start
+            gen = 'CB4856' if xo.upstream_CB4856_purity > xo.downstream_CB4856_purity else 'N2'
+            col[(df.position >= left) & (df.position <= mid)] = gen
+            # print(f'{left}..{mid} = {gen}')
+            left = mid
+        gen = 'N2' if gen == 'CB4856' else 'CB4856'
+        col[(df.position > mid) & (df.position < right)] = gen
+        # print(f'{mid}..{right} = {gen}')
+    df['background'] = col
+    return df
+
 def peak_finder(args):
     '''
     Top level function for the `peaks` command.
@@ -58,15 +98,19 @@ def peak_finder(args):
     console = Console()
     with console.status(f'Processing SNPs', spinner='aesthetic') as status:
         console.log(f'Reading {args.snps}')
-        snps = pd.read_pickle(args.snps, compression='gzip')
-        console.log(f'read {len(snps)} SNPs')
+        snps = pd.read_pickle(args.snps, compression='gzip').groupby('chrom_id')
+        console.log(f'read {len(snps)} SNP groups')
+        xo = pd.read_pickle(args.crossovers, compression='gzip').groupby('chrom_id')
+        console.log(f'read {len(xo)} crossover groups')
         result = []
-        for cname, sf in snps.groupby('chrom_id'):
+        for cname, sf in snps:
             df = extract_blocks(sf, args.max_snps)
             if df is None:
                 console.log(f'[red] no blocks in {cname}')
             else:
                 console.log(f'{cname}: {len(sf)} SNPs {len(df)} in blocks')
+                cf = xo.get_group(cname) if cname in xo.groups else None
+                df = add_background(cf,df)
                 result.append(df)
         final = pd.concat(result)
         console.log(f'Writing to {args.output}')
