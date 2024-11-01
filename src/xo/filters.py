@@ -51,8 +51,9 @@ class SNPFilter:
     def load_data(self, fn):
         '''
         Read the SNP data from a CSV file.  Add two new columns (chromosome length and 
-        relative SNP location) used in summaries. SNPs are grouped by chromosome ID and
-        the groups are saved in an instance variable.
+        relative SNP location) used in summaries and another new column (homozygosity)
+        for filtering.  SNPs are grouped by chromosome ID and the groups are saved in 
+        an instance variable.
 
         Arguments:
           fn: name of CSV file
@@ -60,6 +61,7 @@ class SNPFilter:
         self._snps = pd.read_csv(fn).rename(columns={'Unnamed: 0': 'SNP'})
         self._snps['chr_length'] = self._snps.chromosome.map(lambda n: chr_length[n])
         self._snps['location'] = self._snps.position / self._snps.chr_length
+        self._snps['homozygosity'] = self._snps.ref_reads / (self._snps.ref_reads + self._snps.var_reads)
         self._groups = self._snps.groupby('chrom_id')
 
     def has_chromosome_block(self, chr_id):

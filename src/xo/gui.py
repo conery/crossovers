@@ -365,7 +365,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             plt.close(fig)
             self.block_buttons[blk_id] = pn.widgets.Button(name='>', align='center', tags=[blk_id])
             self.block_buttons[blk_id].on_click(self.toggle_text_cb)
-            df = block[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads','background']]
+            df = block[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads','background','homozygosity']]
             self.block_text[blk_id] = pn.pane.DataFrame(df, visible=False)
             g.append(pn.Row(
                 self.block_buttons[blk_id],
