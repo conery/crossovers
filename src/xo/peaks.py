@@ -45,6 +45,24 @@ def extract_blocks(chromosome, max_block_size):
         blocks.append(df.assign(blk_id=i))
     return pd.concat(blocks) if blocks else None
 
+def majority_background(chr):
+    '''
+    Figure out whether a chromosome is mostly N2 or CB4856 to use as the
+    default background (when a chromosome does not have a crossover).
+
+    Arguments:
+      chr: dataframe with SNPs in a chromosome
+
+    Returns:
+      'N2' or 'CB4856'
+    '''
+    grps = chr.groupby('hmm_state1')
+    n2_group = grps.groups.get('N2')
+    cb_group = grps.groups.get('CB4856')
+    n2_count = len(n2_group) if 'N2' in grps else 0
+    cb_count = len(cb_group) if 'CB4856' in grps else 0
+    return 'N2' if n2_count > cb_count else 'CB4856'
+
 # Chromosome lengths
 
 chr_length = {
@@ -67,9 +85,10 @@ def add_background(cf, df):
     Returns:
       a copy of df with a new background column added
     '''
-    gen = df.iloc[0].hmm_state1
-    col = pd.Series(gen, index=df.index)
+    # gen = df.iloc[0].hmm_state1
+    gen = majority_background(df)
     # print('default', gen)
+    col = pd.Series(gen, index=df.index)
     if cf is not None:
         left = 0
         right = chr_length[df.iloc[0].chromosome]
@@ -84,6 +103,7 @@ def add_background(cf, df):
         # print(f'{mid}..{right} = {gen}')
     df['background'] = col
     return df
+
 
 def peak_finder(args):
     '''
