@@ -17,8 +17,13 @@ ENV XO_CROSSOVERS=/data/BSP_COs_final_set.pickle.gzip
 ENV XO_PEAKS=/data/peaks.csv
 ENV XO_SAVE=/data/summary.csv
 
-COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
+# Define default params for postprocessor
+ENV XO_POST_BLOCK_SIZE='0 100'
+ENV XO_POST_BLOCK_LENGTH='0 1000'
+ENV XO_POST_COVERAGE=2
+ENV XO_POST_MATCH=True
+ENV XO_POST_HIGH_Z=0.9
+ENV XO_DELTA_HIGH_Z=0.1
 
 WORKDIR /app
 COPY . /app

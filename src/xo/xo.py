@@ -21,6 +21,7 @@ from rich.logging import RichHandler
 from .peaks import peak_finder
 from .gui import start_app
 from .vis import visualize, plot_commands
+from .post import postprocess
 
 def init_cli():
     """
@@ -34,6 +35,13 @@ def init_cli():
     crossovers_default = os.environ.get('XO_CROSSOVERS') or 'BSP_COs_final_set.pickle.gzip'
     peaks_default = os.environ.get('XO_PEAKS') or 'peaks.csv'
     save_default = os.environ.get('XO_SAVE') or 'summary.csv'
+
+    post_block_size = os.environ.get('XO_POST_BLOCK_SIZE') or (0,100)
+    post_block_length = os.environ.get('XO_POST_BLOCK_LENGTH') or (0,1000)
+    post_coverage = os.environ.get('XO_POST_COVERAGE') or 2
+    post_match = os.environ.get('XO_POST_MATCH') or True
+    post_high_z = os.environ.get('XO_POST_HIGH_Z') or 0.9
+    post_delta_z = os.environ.get('XO_DELTA_HIGH_Z') or 0.1
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
@@ -68,7 +76,15 @@ def init_cli():
 
     post_parser = subparsers.add_parser('post', help='postprocessing of filtered blocks')
     post_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
-    post_parser.set_defaults(func=post)
+    post_parser.add_argument('--chromosomes', metavar='P', default='BSP.*', help='chromosome name pattern')
+    post_parser.add_argument('--size', metavar='N', nargs=2, type=int, default=post_block_size, help='block size range (#SNPs)')
+    post_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=post_block_length, help='block length range (bp)')
+    post_parser.add_argument('--coverage', metavar='N', type=int, default=post_coverage, help='minimum coverage')
+    post_parser.add_argument('--match', action='store_true', default=post_match, help='require genome match')
+    post_parser.add_argument('--high_z', metavar='N', type=float, default=post_high_z, help='homozygosity for Type 2 blocks')
+    post_parser.add_argument('--delta_z', metavar='N', type=float, default=post_delta_z, help='homozygosity for Type 1 blocks')
+    post_parser.add_argument('--out', metavar='F', default=save_default, help='write processed data to this file')
+    post_parser.set_defaults(func=postprocess)
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -90,9 +106,6 @@ def setup_logging(args):
         format='{relativeCreated:4.0f} msec: {message}',
         handlers = [RichHandler(markup=True)],
     )
-
-def post(args):
-    print('TBD')
 
 def main():
     """
