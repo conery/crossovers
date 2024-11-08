@@ -280,7 +280,14 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         '''
         chr_id = self.chromosome_id.value
         chrom = self.intervals.get_group(chr_id)
-        rects = PatchCollection(self._make_patches(chrom), match_original=True)
+
+        graphic = pn.Column()
+        if self.filter.has_chromosome_block(chr_id):
+            self.blocks, self.summary = self.filter.apply(chr_id)
+            grid = self._make_grid()
+            graphic.append(grid)
+
+        rects = PatchCollection(self._make_patches(chrom, chr_id), match_original=True)
         fig, ax = plt.subplots(figsize=(12,1))
         plt.box(False)
         plt.yticks([])
@@ -295,21 +302,17 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         plt.xlim(0,20000000)
         plt.ylim(0,2000000)
         plt.close(fig)
-        graphic = pn.Column(pn.pane.Matplotlib(fig, dpi=72, tight=True))
-        if self.filter.has_chromosome_block(chr_id):
-            self.blocks, self.summary = self.filter.apply(chr_id)
-            # self._make_dots()
-            grid = self._make_grid()
-            graphic.append(grid)
+        graphic.insert(0,pn.pane.Matplotlib(fig, dpi=72, tight=True))
+
         self.tabs[0].pop(-1)
         self.tabs[0].append(graphic)
 
-    def _make_patches(self, df):
+    def _make_patches(self, df, chr_id):
         '''
         Create a horizontal bar as a collection of rectangular patches, with one
         patch for each row in the data frame.  The rows have the starting coordinates
         lengths, and HMM states of chromosome regions, used to define the width and
-        color of a patch.
+        color of a patch.  Add black dots to indicate the locations of blocks.
         '''
         pcolor = {
             'CB4856': 'dodgerblue',
@@ -319,7 +322,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         for _, r in df.iterrows():
             c = pcolor.get(r.hmm_state) or 'lightgray'
             res.append(Rectangle((r.start,500000), r.length, 1000000, color=c))
-            res.append(Circle((r.start,750000), 50000, color='black'))
+        if self.filter.has_chromosome_block(chr_id):
+            for blk_id, _ in self.summary.iterrows():
+                block = self.blocks.get_group(blk_id)
+                x0 = block.iloc[0].position
+                res.append(Circle((x0,750000), 50000, color='black'))
         return res
 
     def _make_grid(self):
