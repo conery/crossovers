@@ -523,7 +523,7 @@ def start_app(args):
             app,
             port = args.port,
             verbose = True,
-            autoreload = True,
+            autoreload = False,
             websocket_origin= '*',
         )
     except Exception as err:

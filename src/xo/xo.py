@@ -39,14 +39,16 @@ def init_cli():
     post_block_size = os.environ.get('XO_POST_BLOCK_SIZE') or (0,100)
     post_block_length = os.environ.get('XO_POST_BLOCK_LENGTH') or (0,1000)
     post_coverage = os.environ.get('XO_POST_COVERAGE') or 2
-    post_match = os.environ.get('XO_POST_MATCH') or True
-    post_high_z = os.environ.get('XO_POST_HIGH_Z') or 0.9
+    post_match = os.environ.get('XO_POST_MATCH') or False
+    post_min_z = os.environ.get('XO_POST_MIN_Z') or 0.9
     post_delta_z = os.environ.get('XO_DELTA_HIGH_Z') or 0.1
+    post_min_snps = os.environ.get('XO_POST_MIN_SNPS') or 2
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
         title = 'subcommands',
-        description = 'operation to perform'
+        description = 'operation to perform',
+        dest='cmnd'
     )
 
     peak_parser = subparsers.add_parser('peaks', help='find peaks in the SNP data')
@@ -81,8 +83,9 @@ def init_cli():
     post_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=post_block_length, help='block length range (bp)')
     post_parser.add_argument('--coverage', metavar='N', type=int, default=post_coverage, help='minimum coverage')
     post_parser.add_argument('--match', action='store_true', default=post_match, help='require genome match')
-    post_parser.add_argument('--high_z', metavar='N', type=float, default=post_high_z, help='homozygosity for Type 2 blocks')
+    post_parser.add_argument('--min_z', metavar='N', type=float, default=post_min_z, help='homozygosity for Type 2 blocks')
     post_parser.add_argument('--delta_z', metavar='N', type=float, default=post_delta_z, help='homozygosity for Type 1 blocks')
+    post_parser.add_argument('--min_snps', metavar='N', type=int, default=post_min_snps, help='minimum number of SNPs of each type')
     post_parser.add_argument('--out', metavar='F', default=save_default, help='write processed data to this file')
     post_parser.set_defaults(func=postprocess)
 
@@ -94,12 +97,16 @@ def init_cli():
 
 def setup_logging(args):
     """
-    Configure the logging modile.  Uncomment one of the first three
-    lines to define the logging level.
+    Configure the logging modile.  Uncomment one of the three levels
+    for each command to define the logging level.
     """
-    level = logging.INFO
-    # level = logging.DEBUG
-    # level = logging.WARNING
+    match args.cmnd:
+        case 'gui':
+            level = logging.INFO
+        case _:
+            level = logging.INFO
+            # level = logging.DEBUG
+            # level = logging.WARNING
     logging.basicConfig(
         level=level,
         style='{',
