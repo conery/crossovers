@@ -43,6 +43,7 @@ def init_cli():
     post_min_z = os.environ.get('XO_POST_MIN_Z') or 0.9
     post_delta_z = os.environ.get('XO_DELTA_HIGH_Z') or 0.1
     post_min_snps = os.environ.get('XO_POST_MIN_SNPS') or 2
+    post_output = os.environ.get('XO_POST_SAVE') or 'ncos.csv'
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
@@ -86,7 +87,7 @@ def init_cli():
     post_parser.add_argument('--min_z', metavar='N', type=float, default=post_min_z, help='homozygosity for Type 2 blocks')
     post_parser.add_argument('--delta_z', metavar='N', type=float, default=post_delta_z, help='homozygosity for Type 1 blocks')
     post_parser.add_argument('--min_snps', metavar='N', type=int, default=post_min_snps, help='minimum number of SNPs of each type')
-    post_parser.add_argument('--out', metavar='F', default=save_default, help='write processed data to this file')
+    post_parser.add_argument('--output', metavar='F', default=post_output, help='output file')
     post_parser.set_defaults(func=postprocess)
 
     if len(sys.argv) == 1:

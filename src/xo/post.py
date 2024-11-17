@@ -7,7 +7,7 @@
 import logging
 
 import numpy as np
-from scipy.signal import find_peaks
+import pandas as pd
 from .filters import SNPFilter
 
 # Associate command line arguments with filter attributes
@@ -105,10 +105,16 @@ def postprocess(args):
     # summary is a data frame where each row is a block that passed all the
     # filters; use the indexes in that frame to fetch the blocks of SNPs where
     # the data resides
+
+    result = []
  
     for blk_id, _ in summary.iterrows():
         block = blocks.get_group(blk_id)
         nco = scan_block(block, args)
         if nco is not None:
-            print(nco)
-        
+            result.append(nco)
+
+    final = pd.concat(result)
+    logging.info(f'Writing to {args.output}')
+    final.to_csv(args.output)
+    logging.info(f'Wrote {len(result)} NCO blocks')
