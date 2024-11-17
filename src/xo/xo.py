@@ -18,9 +18,9 @@ import sys
 import logging
 from rich.logging import RichHandler
 
-from .peaks import peak_finder
 from .gui import start_app
-from .vis import visualize, plot_commands
+from .peaks import peak_finder
+# from .vis import visualize, plot_commands
 from .post import postprocess
 
 def init_cli():
@@ -34,16 +34,16 @@ def init_cli():
     intervals_default = os.environ.get('XO_INTERVALS') or 'BSP_TIGER.intervals_dataframe.pickle.gzip'
     crossovers_default = os.environ.get('XO_CROSSOVERS') or 'BSP_COs_final_set.pickle.gzip'
     peaks_default = os.environ.get('XO_PEAKS') or 'peaks.csv'
-    save_default = os.environ.get('XO_SAVE') or 'summary.csv'
+    filtered_default = os.environ.get('XO_BLOCKS') or 'filtered.csv'
+    post_default = os.environ.get('XO_POST') or 'ncos.csv'
 
-    post_block_size = os.environ.get('XO_POST_BLOCK_SIZE') or (0,100)
-    post_block_length = os.environ.get('XO_POST_BLOCK_LENGTH') or (0,1000)
-    post_coverage = os.environ.get('XO_POST_COVERAGE') or 2
-    post_match = os.environ.get('XO_POST_MATCH') or False
+    # post_block_size = os.environ.get('XO_POST_BLOCK_SIZE') or (0,100)
+    # post_block_length = os.environ.get('XO_POST_BLOCK_LENGTH') or (0,1000)
+    # post_coverage = os.environ.get('XO_POST_COVERAGE') or 2
+    # post_match = os.environ.get('XO_POST_MATCH') or False
     post_min_z = os.environ.get('XO_POST_MIN_Z') or 0.9
     post_delta_z = os.environ.get('XO_DELTA_HIGH_Z') or 0.1
     post_min_snps = os.environ.get('XO_POST_MIN_SNPS') or 2
-    post_output = os.environ.get('XO_POST_SAVE') or 'ncos.csv'
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
@@ -52,42 +52,37 @@ def init_cli():
         dest='cmnd'
     )
 
-    peak_parser = subparsers.add_parser('peaks', help='find peaks in the SNP data')
+    gui_parser = subparsers.add_parser('gui', help='explore blocks and NCOs')
+    # gui_parser.add_argument('--intervals', metavar='F', default=intervals_default, help='SNP summaries')
+    # gui_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
+    # gui_parser.add_argument('--crossovers', metavar='F', default=crossovers_default, help='file with crossover locations')
+    gui_parser.add_argument('--port', metavar='N', type=int, default=5006, help='local port for the Panel server')
+    gui_parser.set_defaults(func=start_app)
+
+    peak_parser = subparsers.add_parser('peaks', help='find blocks around peaks in the SNP data')
     peak_parser.add_argument('--snps', metavar='F', default=snps_default, help='input (TIGER marker) file')
     peak_parser.add_argument('--crossovers', metavar='F', default=crossovers_default, help='file with crossover locations')
     peak_parser.add_argument('--output', metavar='F', default=peaks_default, help='output file')
     peak_parser.add_argument('--max_snps', metavar='N', type=int, default=1000, help="max number of SNPs in a block")
     peak_parser.set_defaults(func=peak_finder)
 
-    gui_parser = subparsers.add_parser('gui', help='explore blocks of SNPs')
-    gui_parser.add_argument('--intervals', metavar='F', default=intervals_default, help='SNP summaries')
-    gui_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
-    gui_parser.add_argument('--crossovers', metavar='F', default=crossovers_default, help='file with crossover locations')
-    gui_parser.add_argument('--port', metavar='N', type=int, default=5006, help='local port for the Panel server')
-    gui_parser.set_defaults(func=start_app)
-
-    vis_parser = subparsers.add_parser('vis', help='visualizations based on filtered blocks')
-    vis_parser.add_argument('command', metavar='P', choices=plot_commands, help=f'type of plot to make {plot_commands}')
-    vis_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
-    vis_parser.add_argument('--chromosomes', metavar='P', default='BSP.*', help='chromosome name pattern')
-    vis_parser.add_argument('--size', metavar='N', nargs=2, type=int, default=(0,100), help='block size range (#SNPs)')
-    vis_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=(0,10000), help='block length range (bp)')
-    vis_parser.add_argument('--coverage', metavar='N', type=int, help='minimum coverage')
-    vis_parser.add_argument('--match', action='store_true', help='require genome match')
-    vis_parser.add_argument('--save', metavar='F', default=save_default, help='write summary dataframe to this file')
-    vis_parser.set_defaults(func=visualize)
+    filter_parser = subparsers.add_parser('filter', help='apply filters to blocks')
+    filter_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
+    filter_parser.add_argument('--crossovers', metavar='F', default=crossovers_default, help='file with crossover locations')
+    filter_parser.add_argument('--output', metavar='F', default=filtered_default, help='output file')
+    filter_parser.add_argument('--chromosomes', metavar='P', default='BSP.*', help='chromosome name pattern')
+    filter_parser.add_argument('--size', metavar='N', nargs=2, type=int, default=(0,100), help='block size range (#SNPs)')
+    filter_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=(0,10000), help='block length range (bp)')
+    filter_parser.add_argument('--coverage', metavar='N', type=int, default=0, help='minimum coverage')
+    filter_parser.add_argument('--match', action='store_true', help='require genome match')
+    filter_parser.set_defaults(func=filter_blocks)
 
     post_parser = subparsers.add_parser('post', help='postprocessing of filtered blocks')
-    post_parser.add_argument('--peaks', metavar='F', default=peaks_default, help='blocks saved by peaks.py')
-    post_parser.add_argument('--chromosomes', metavar='P', default='BSP.*', help='chromosome name pattern')
-    post_parser.add_argument('--size', metavar='N', nargs=2, type=int, default=post_block_size, help='block size range (#SNPs)')
-    post_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=post_block_length, help='block length range (bp)')
-    post_parser.add_argument('--coverage', metavar='N', type=int, default=post_coverage, help='minimum coverage')
-    post_parser.add_argument('--match', action='store_true', default=post_match, help='require genome match')
+    post_parser.add_argument('--blocks', metavar='F', default=filtered_default, help='file with filtered blocks')
+    post_parser.add_argument('--output', metavar='F', default=post_default, help='output file')
     post_parser.add_argument('--min_z', metavar='N', type=float, default=post_min_z, help='homozygosity for Type 2 blocks')
     post_parser.add_argument('--delta_z', metavar='N', type=float, default=post_delta_z, help='homozygosity for Type 1 blocks')
     post_parser.add_argument('--min_snps', metavar='N', type=int, default=post_min_snps, help='minimum number of SNPs of each type')
-    post_parser.add_argument('--output', metavar='F', default=post_output, help='output file')
     post_parser.set_defaults(func=postprocess)
 
     if len(sys.argv) == 1:
