@@ -12,24 +12,70 @@
 # to run one of the commands -- peak finder, viewer, or filter.
 
 import argparse
+import logging
 import os
 import sys
 
-import logging
+import pandas as pd
+
+from rich.console import Console
 from rich.logging import RichHandler
 
 from .gui import start_app
-# from .peaks import peak_finder
-# from .vis import visualize, plot_commands
-# from .post import postprocess
+from .peaks import extract_blocks, add_background, peak_results
+
 
 # Top level functions, called from main
 
 def peak_finder(args):
+    '''
+    Top level function for the `peaks` command.  Reads the SNP data, groups 
+    it by chromosome, and calls `extract_blocks` for each chromosome.  
+    The results are collected in a data frame and written to a CSV file.
+
+    Arguments:
+      args:  command line arguments from `argparse`
+    '''
+
+    def _find_peaks():
+        logging.info(f'Reading {args.snps}')
+        snps = pd.read_pickle(args.snps, compression='gzip').groupby('chrom_id')
+        logging.info(f'read {len(snps)} SNP groups')
+        xo = pd.read_pickle(args.crossovers, compression='gzip').groupby('chrom_id')
+        logging.info(f'read {len(xo)} crossover groups')
+        result = []
+        for cname, sf in snps:
+            df = extract_blocks(sf, args.max_snps)
+            if df is None:
+                logging.info(f'[red]no blocks in {cname}')
+            else:
+                logging.info(f'{cname}: {len(sf)} SNPs {len(df)} in blocks')
+                cf = xo.get_group(cname) if cname in xo.groups else None
+                df = add_background(cf,df)
+                result.append(df)
+        final = pd.concat(result)
+        logging.info(f'Writing to {args.output}')
+        final.to_csv(args.output)
+        logging.info(f'Wrote {len(final)} records')
+        return final
+
     logging.debug(f'peaks {vars(args)}')
+
+    # If the log level is set to QUIET use a status spinner to show we're making progress
+
+    if args.log == 'quiet':
+        console = Console()
+        with console.status(f'Processing SNPs', spinner='aesthetic') as status:
+            peaks = _find_peaks()
+    else:
+        peaks = _find_peaks()
+
+    peak_results(peaks)
+
 
 def filter_blocks(args):
     logging.debug(f'filter {vars(args)}')
+    raise Exception('not implemented yet')
 
 def postprocess(args):
     logging.debug(f'post {vars(args)}')
@@ -117,13 +163,13 @@ def setup_logging(args):
                 level = logging.INFO
             case 'debug':
                 level = logging.DEBUG
-            case 'quiet':
+            case _:
                 level = logging.WARNING
     logging.basicConfig(
         level=level,
         style='{',
         format='{relativeCreated:4.0f} msec: {message}',
-        handlers = [RichHandler(markup=True)],
+        handlers = [RichHandler(markup=True, rich_tracebacks=True)],
     )
 
 def main():
@@ -133,5 +179,7 @@ def main():
     """
     args = init_cli()
     setup_logging(args)
-    args.func(args)
-
+    try:
+        args.func(args)
+    except Exception as err:
+        logging.exception(err)

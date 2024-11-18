@@ -14,7 +14,7 @@
 import pandas as pd
 from scipy.signal import find_peaks
 
-from rich.console import Console
+from rich.table import Table
 
 def extract_blocks(chromosome, max_block_size):
     '''
@@ -104,36 +104,12 @@ def add_background(cf, df):
     df['background'] = col
     return df
 
-
-def peak_finder(args):
+def peak_results(df):
     '''
-    Top level function for the `peaks` command.
-    Reads the SNP data, groups it by chromosome, and
-    calls `extract_blocks` for each chromosome.  The results are collected in
-    a data frame and written to a CSV file.
+    Print a nice looking table that summarizes results.
 
     Arguments:
-      args:  command line arguments from `argparse`
+      df:  dataframe containing peaks
     '''
-    console = Console()
-    with console.status(f'Processing SNPs', spinner='aesthetic') as status:
-        console.log(f'Reading {args.snps}')
-        snps = pd.read_pickle(args.snps, compression='gzip').groupby('chrom_id')
-        console.log(f'read {len(snps)} SNP groups')
-        xo = pd.read_pickle(args.crossovers, compression='gzip').groupby('chrom_id')
-        console.log(f'read {len(xo)} crossover groups')
-        result = []
-        for cname, sf in snps:
-            df = extract_blocks(sf, args.max_snps)
-            if df is None:
-                console.log(f'[red] no blocks in {cname}')
-            else:
-                console.log(f'{cname}: {len(sf)} SNPs {len(df)} in blocks')
-                cf = xo.get_group(cname) if cname in xo.groups else None
-                df = add_background(cf,df)
-                result.append(df)
-        final = pd.concat(result)
-        console.log(f'Writing to {args.output}')
-        final.to_csv(args.output)
-        console.log(f'Wrote {len(final)} records')
-
+    groups = df.groupby('chrom_id')
+    print(len(groups), 'groups')
