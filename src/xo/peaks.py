@@ -14,6 +14,7 @@
 import pandas as pd
 from scipy.signal import find_peaks
 
+from rich.console import Console
 from rich.table import Table
 
 def extract_blocks(chromosome, max_block_size):
@@ -104,12 +105,29 @@ def add_background(cf, df):
     df['background'] = col
     return df
 
-def peak_results(df):
+def peak_results(res):
     '''
     Print a nice looking table that summarizes results.
 
     Arguments:
-      df:  dataframe containing peaks
+      res:  result from the peak finder
     '''
-    groups = df.groupby('chrom_id')
-    print(len(groups), 'groups')
+    count, df = res
+    chr = df.groupby('chrom_id')
+    blocks = df.groupby(['chrom_id','blk_id'])
+
+    counts = blocks['chromosome'].count()
+    mean = counts.mean()
+    stddev = counts.std()
+
+    g = Table.grid(padding=[0,2,0,1])
+    g.add_column()
+    g.add_column(justify='right')
+
+    g.add_row('Number of chromosomes', str(count))
+    g.add_row('Chromosomes with blocks', str(len(chr)))
+    g.add_row('Number of blocks', str(len(blocks)))
+    g.add_row('Mean block size', f'{mean:0.1f}')
+    g.add_row('   std dev', f'{stddev:0.1f}')
+
+    Console().print(g)

@@ -166,3 +166,4 @@ cython_debug/
 *.pickle.gzip
 *.graffle
 *.csv
+src/xo/filters_v1.py

@@ -23,7 +23,7 @@ from rich.logging import RichHandler
 
 from .gui import start_app
 from .peaks import extract_blocks, add_background, peak_results
-
+from .filters import SNPFilter
 
 # Top level functions, called from main
 
@@ -57,7 +57,7 @@ def peak_finder(args):
         logging.info(f'Writing to {args.output}')
         final.to_csv(args.output)
         logging.info(f'Wrote {len(final)} records')
-        return final
+        return len(snps), final
 
     logging.debug(f'peaks {vars(args)}')
 
@@ -66,16 +66,45 @@ def peak_finder(args):
     if args.log == 'quiet':
         console = Console()
         with console.status(f'Processing SNPs', spinner='aesthetic') as status:
-            peaks = _find_peaks()
+            res = _find_peaks()
     else:
-        peaks = _find_peaks()
+        res = _find_peaks()
 
-    peak_results(peaks)
+    peak_results(res)
 
+
+# Chromosome lengths
+
+chr_length = {
+    1: 15114068,
+    2: 15311845,
+    3: 13819453,
+    4: 17493838,
+    5: 20953657,
+    6: 17739129,
+}
 
 def filter_blocks(args):
+    '''
+    Top level function for the `filter` command.  Reads the peaks file
+    (adding new columns for location and homozygosity), passes it to
+    the filter, saves the result.
+
+    Arguments:
+      args:  command line arguments from `argparse`
+    '''
     logging.debug(f'filter {vars(args)}')
-    raise Exception('not implemented yet')
+
+    filter = SNPFilter(args)
+
+    peaks = pd.read_csv(args.peaks).rename(columns={'Unnamed: 0': 'SNP'})
+    peaks['chr_length'] = peaks.chromosome.map(lambda n: chr_length[n])
+    peaks['location'] = peaks.position / peaks.chr_length
+    peaks['homozygosity'] = peaks.ref_reads / (peaks.ref_reads + peaks.var_reads)
+
+    res, _ = filter.apply(peaks)
+    res.to_csv(args.output)
+
 
 def postprocess(args):
     logging.debug(f'post {vars(args)}')
