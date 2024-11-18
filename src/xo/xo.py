@@ -19,9 +19,20 @@ import logging
 from rich.logging import RichHandler
 
 from .gui import start_app
-from .peaks import peak_finder
+# from .peaks import peak_finder
 # from .vis import visualize, plot_commands
-from .post import postprocess
+# from .post import postprocess
+
+# Top level functions, called from main
+
+def peak_finder(args):
+    logging.debug(f'peaks {vars(args)}')
+
+def filter_blocks(args):
+    logging.debug(f'filter {vars(args)}')
+
+def postprocess(args):
+    logging.debug(f'post {vars(args)}')
 
 def init_cli():
     """
@@ -51,6 +62,8 @@ def init_cli():
         description = 'operation to perform',
         dest='cmnd'
     )
+
+    parser.add_argument('--log', metavar='X', choices=['quiet','info','debug'])
 
     gui_parser = subparsers.add_parser('gui', help='explore blocks and NCOs')
     # gui_parser.add_argument('--intervals', metavar='F', default=intervals_default, help='SNP summaries')
@@ -96,13 +109,16 @@ def setup_logging(args):
     Configure the logging modile.  Uncomment one of the three levels
     for each command to define the logging level.
     """
-    match args.cmnd:
-        case 'gui':
-            level = logging.INFO
-        case _:
-            level = logging.INFO
-            # level = logging.DEBUG
-            # level = logging.WARNING
+    if args.cmnd == 'gui':
+        level = logging.INFO
+    else:
+        match args.log:
+            case 'info':
+                level = logging.INFO
+            case 'debug':
+                level = logging.DEBUG
+            case 'quiet':
+                level = logging.WARNING
     logging.basicConfig(
         level=level,
         style='{',
