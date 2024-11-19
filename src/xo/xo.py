@@ -23,7 +23,7 @@ from rich.logging import RichHandler
 
 from .gui import start_app
 from .peaks import extract_blocks, add_background, peak_results
-from .filters import SNPFilter
+from .filters import SNPFilter, NCOFilter
 
 # Top level functions, called from main
 
@@ -102,12 +102,21 @@ def filter_blocks(args):
     peaks['location'] = peaks.position / peaks.chr_length
     peaks['homozygosity'] = peaks.ref_reads / (peaks.ref_reads + peaks.var_reads)
 
-    res, _ = filter.apply(peaks)
-    res.to_csv(args.output)
+    res = filter.apply(peaks)
+    res.to_csv(args.output, index=False)
 
 
 def postprocess(args):
     logging.debug(f'post {vars(args)}')
+
+    filter = NCOFilter(args)
+
+    df = pd.read_csv(args.blocks)
+    res = filter.apply(df)
+    res.to_csv(args.output, index=False)
+
+    filter.print_summary()
+
 
 def init_cli():
     """
@@ -168,9 +177,10 @@ def init_cli():
     post_parser = subparsers.add_parser('post', help='postprocessing of filtered blocks')
     post_parser.add_argument('--blocks', metavar='F', default=filtered_default, help='file with filtered blocks')
     post_parser.add_argument('--output', metavar='F', default=post_default, help='output file')
-    post_parser.add_argument('--min_z', metavar='N', type=float, default=post_min_z, help='homozygosity for Type 2 blocks')
-    post_parser.add_argument('--delta_z', metavar='N', type=float, default=post_delta_z, help='homozygosity for Type 1 blocks')
+    post_parser.add_argument('--min_z', metavar='N', type=float, default=post_min_z, help='homozygosity for Type A blocks')
+    post_parser.add_argument('--delta_z', metavar='N', type=float, default=post_delta_z, help='homozygosity for Type B blocks')
     post_parser.add_argument('--min_snps', metavar='N', type=int, default=post_min_snps, help='minimum number of SNPs of each type')
+    post_parser.add_argument('--length', metavar='N', type=int, default=5, help='minimum block length (bp)')
     post_parser.set_defaults(func=postprocess)
 
     if len(sys.argv) == 1:

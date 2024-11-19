@@ -1,14 +1,24 @@
 #
-# This module defines a SNPFilter class used by the command line and
-# GUI of the crossover explorer application.
+# This module defines two classes used by the command line and
+# GUI of the crossover explorer application:
+#
+# A SNPFilter processes the raw blocks produced by the peak finder,
+# filtering by block size, block length, etc.
+#
+# An NCOFilter does furter postprocessing of the filtered blocks
+# based on homozygosity and coverage.
 #
 # John Conery
 # University of Oregon
 #
 
 import logging
+import numpy as np
 import pandas as pd
 import re
+
+from rich.console import Console
+from rich.table import Table
 
 class SNPFilter:
     """
@@ -32,6 +42,8 @@ class SNPFilter:
         self._max_length = 10000
         self._coverage = 0
         self._matched = False
+        self._result = None
+        self._summary = None
 
         filter_params = {
             'chromosomes':  'chromosome',
@@ -99,6 +111,16 @@ class SNPFilter:
     def coverage(self, n):
         self._coverage = n
 
+    @property
+    def result(self):
+        '''Filtered data'''
+        return self._result
+
+    @property
+    def summary(self):
+        '''Summary of filtered data'''
+        return self._summary
+
     def apply(self, df):
         '''
         Apply the filtering criteria to a set of SNPs.  The first step is to make a 
@@ -125,8 +147,8 @@ class SNPFilter:
             logging.info(f'  match: {len(df)} have genome match')
 
         if self._coverage:
-            df = df[df.var_reads + df.ref_reads > self._coverage]
-            logging.info(f'  coverage:  {len(df)} have reads > {self._coverage}')
+            df = df[df.var_reads + df.ref_reads >= self._coverage]
+            logging.info(f'  coverage:  {len(df)} have reads ≥ {self._coverage}')
                
         groups = df.groupby(['chrom_id','blk_id'])
         logging.info(f'Groupd into {len(groups)} blocks')
@@ -150,4 +172,170 @@ class SNPFilter:
 
         res = pd.concat(groups.get_group(n) for n in sf.index)
 
-        return res, sf
+        self._result = res
+        self._summary = sf
+
+        return res
+
+
+class NCOFilter:
+    """
+    An NCOFilter applies additional filtering criteria to blocks of SNPs.  
+    The constructor uses command line arguments to initialize filtering critera.  
+    Call a method named `apply` to filter a data set.
+
+    Attributes:
+      min_z:     homozygosity for type A blocks
+      delta_z:   homozygosity for type B blocks
+      min_snps:  minumum number of SNPs of each type
+      length:    minimum block length
+    """
+
+    def __init__(self, args):
+        self._min_z = 0.9
+        self._delta_z = 0.1
+        self._min_snps = 2
+        self._length = 5
+        self._result = None
+
+        filter_params = ['min_z','delta_z', 'min_snps', 'length']
+
+        for attr in filter_params:
+            if val := vars(args).get(attr):
+                setattr(self, attr, val)
+
+    def __repr__(self):
+        res = f' z {self._min_z}'
+        res += f' ∆ {self._delta_z}'
+        res += f' snps {self._min_snps}'
+        res += f' len {self._length}'
+        return res
+
+    @property
+    def min_z(self):
+        '''Minimum homozygosity for Type A blocks'''
+        return self._min_z
+    
+    @min_z.setter
+    def min_z(self, x):
+        self._min_z = x
+
+    @property
+    def delta_z(self):
+        '''Homozygosity range for Type B blocks'''
+        return self._delta_z
+    
+    @delta_z.setter
+    def delta_z(self, x):
+        self._delta_z = x
+
+    @property
+    def min_snps(self):
+        '''Minimum number of SNPs of each type'''
+        return self._min_snps
+    
+    @min_snps.setter
+    def min_snps(self, n):
+        self._min_snps = n
+
+    @property
+    def length(self):
+        '''Minimum block length'''
+        return self._length
+    
+    @length.setter
+    def length(self, n):
+        self._length = n
+
+    @property
+    def result(self):
+        '''Filtered data'''
+        return self._result
+
+    def apply(self, df):
+        '''
+        Apply the NCO filtering criteria to a set of filtered blocks SNPs.
+
+        Arguments:
+          df:  a data frame of filtered SNPs
+
+        Returns:
+          res:  a frame containing the filtered data
+        '''
+        logging.info(f'Filtering {len(df)} SNPs')
+
+        res = []
+        for name, block in df.groupby(['chrom_id','blk_id']):
+            nco = self._scan(block)
+            if nco is not None:
+                logging.debug(f'{name} block with {len(nco)} rows')
+                res.append(nco)
+
+        self._result = pd.concat(res)
+        return self._result
+        
+
+    def _scan(self, block):
+        '''
+        Scan a block for runs that have satisfy homozygosity requirements
+        and have a minimum number of SNPs.
+        '''
+
+        def next_interval():
+            nonlocal i, j
+            j = i
+            while j < len(p):
+                # logging.debug(f'{i} {j} {p.iloc[j]}')
+                if np.isnan(p.iloc[j]):
+                    if j - i >= self.length:
+                        break
+                    i = j+1
+                j += 1
+            return j - i >= self.length
+        
+        res = []
+
+        z = block.homozygosity
+        if block.iloc[0].background == 'CB4856':
+            rr = block.ref_reads
+            p = z.where((z >= self.min_z) & (rr >= self.min_snps))
+        else:
+            rr = block.ref_reads
+            vr = block.var_reads
+            p = z.where((abs(z - 0.5) <= self.delta_z) & (rr >= self.min_snps) & (vr >= self.min_snps))
+
+        i = j = 0
+        while next_interval():
+            nco = block.iloc[i:j]
+            res.append(nco)
+            i = j+1
+
+        if res:
+            res.sort(key=lambda b: len(b))
+            nco = res[-1]
+        else:
+            nco = None
+
+        return nco
+
+    def print_summary(self):
+        ncos = self._result.groupby(['chrom_id','blk_id'])
+        counts = ncos.SNP.count()
+        sf = counts.groupby(level='chrom_id').count()
+
+        c = Console()
+        g = Table.grid(padding=[0,2,0,1])
+        g.add_column()
+        g.add_column(justify='right')
+
+        g.add_row('Chromosomes with NCOs', str(len(sf)))
+        g.add_row('Mean number of NCOs per chromosome', f'{sf.mean():0.1f}')
+        c.print(g)
+
+        c.print()
+        g = Table.grid(padding=[0,2,0,1])
+        g.add_column()
+        g.add_column(justify='right')
+        for chr, n in sf.items():
+            g.add_row(chr, str(n))
+        c.print(g)
