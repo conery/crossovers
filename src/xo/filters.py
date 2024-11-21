@@ -23,8 +23,8 @@ from rich.table import Table
 class SNPFilter:
     """
     A SNPFilter applies filtering criteria to SNPs in blocks identified by the
-    peak finder.  The constructor uses command line arguments to initialize 
-    filtering critera.  Call a method named `apply` to filter a data set.
+    peak finder. Pass the constructor a dictionary that has settings filtering 
+    critera. Call a method named `apply` to filter a data set.
 
     Attributes:
       chromosome:  when filtering return SNPs in chromosomes with names that match this pattern
@@ -53,7 +53,7 @@ class SNPFilter:
             'match':        'matched',
         }
         for arg, attr in filter_params.items():
-            if val := vars(args).get(arg):
+            if val := args.get(arg):
                 setattr(self, attr, val)
 
     def __repr__(self):
@@ -181,7 +181,7 @@ class SNPFilter:
 class NCOFilter:
     """
     An NCOFilter applies additional filtering criteria to blocks of SNPs.  
-    The constructor uses command line arguments to initialize filtering critera.  
+    Pass the constructor a dictionary that has settings filtering critera.  
     Call a method named `apply` to filter a data set.
 
     Attributes:
@@ -201,7 +201,7 @@ class NCOFilter:
         filter_params = ['min_z','delta_z', 'min_snps', 'length']
 
         for attr in filter_params:
-            if val := vars(args).get(attr):
+            if val := args.get(attr):
                 setattr(self, attr, val)
 
     def __repr__(self):

@@ -95,7 +95,7 @@ def filter_blocks(args):
     '''
     logging.debug(f'filter {vars(args)}')
 
-    filter = SNPFilter(args)
+    filter = SNPFilter(vars(args))
 
     peaks = pd.read_csv(args.peaks).rename(columns={'Unnamed: 0': 'SNP'})
     peaks['chr_length'] = peaks.chromosome.map(lambda n: chr_length[n])
@@ -109,7 +109,7 @@ def filter_blocks(args):
 def postprocess(args):
     logging.debug(f'post {vars(args)}')
 
-    filter = NCOFilter(args)
+    filter = NCOFilter(vars(args))
 
     df = pd.read_csv(args.blocks)
     res = filter.apply(df)
