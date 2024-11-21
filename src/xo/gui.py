@@ -15,12 +15,15 @@ import panel as pn
 import numpy as np
 import logging
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 from matplotlib.colors import CSS4_COLORS as colors
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle, Circle
 
 from xo.filters import SNPFilter
+from xo.config import Config
 
 pn.extension('tabulator')
 
@@ -37,10 +40,11 @@ class BlockSizeFilterWidget(pn.widgets.IntRangeSlider):
         Arguments:
           f:  the SNPFilter object that will do the filtering.
         '''
+        c = Config()
         super(BlockSizeFilterWidget,self).__init__(
             name = 'Block Size (#SNPs)',
-            start = 0,
-            end = 100,
+            start = c.filter_block_size[0],
+            end = c.filter_block_size[1]
         )
         self.value = (self.start, self.end)
         self.tags = ['size', 1]
@@ -66,10 +70,11 @@ class BlockLengthFilterWidget(pn.widgets.IntRangeSlider):
         Arguments:
           f:  the SNPFilter object that will do the filtering.
         '''
+        c = Config()
         super(BlockLengthFilterWidget,self).__init__(
             name = 'Block Length (bp)',
-            start = 0,
-            end = 10000,
+            start = c.filter_block_length[0],
+            end = c.filter_block_length[1],
             step = 10,
         )
         self.value = (self.start, self.end)
@@ -175,7 +180,12 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
 
         super(PeakViewerApp, self).__init__(**params)
 
-        self.filter = SNPFilter()
+        self._snps = None               # SNP data from TIGER
+        self._blocks = None             # blocks found by peak finder
+        self._filtered = None           # filtered blocks
+        self._ncos = None               # NCOs
+
+        self.filter = SNPFilter({})
         self.filter_widgets = FilterBox(self.filter)
 
         button_style_sheet = ''':host(.solid) .bk-btn {
@@ -273,15 +283,36 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         Arguments:
           args:  command line arguments 
         '''
-        logging.info('loading interval data')
-        self.intervals = pd.read_pickle(args.intervals, compression='gzip').groupby('chrom_id')
-        logging.info(f'read {len(self.intervals)} intervals')
-        self.crossovers = pd.read_pickle(args.crossovers, compression='gzip').groupby('chrom_id')
-        logging.info(f'read {len(self.crossovers)} crossovers')
+        c = Config()
+        
+        logging.info('Loading intervals')
+        self.intervals = pd.read_pickle(c.intervals_default, compression='gzip').groupby('chrom_id')
         self.clist = list(self.intervals.groups.keys())
         self.cmap = { name: i for i, name in enumerate(self.clist)}
-        logging.info('loading peak data')
-        self.filter.load_data(args.peaks)
+        logging.info(f'  read {len(self.intervals)} intervals')
+
+        logging.info('Loading crossovers')
+        self.crossovers = pd.read_pickle(c.crossovers_default, compression='gzip').groupby('chrom_id')
+        logging.info(f'  read {len(self.crossovers)} crossovers')
+
+        p = Path(args.peaks)
+        if p.is_file():
+            logging.info('Loading blocks')
+            self._blocks = pd.read_csv(p).groupby(['chrom_id','blk_id'])
+            logging.info(f'  read {len(self._blocks)} blocks from {args.peaks}')
+            self._chromosome_names = self._blocks.count().index.levels[0]
+
+        p = Path(args.filtered)
+        if p.is_file():
+            logging.info('Loading filtered')
+            self._filtered = pd.read_csv(p)
+            logging.info(f'  read {len(self._filtered)} filtered blocks from {args.filtered}')
+
+        p = Path(args.ncos)
+        if p.is_file():
+            logging.info('Loading NCOs')
+            self._ncos = pd.read_csv(p)
+            logging.info(f'  read {len(self._ncos)} NCO blocks from {args.ncos}')
 
         # setting a value in the chromosome name widget triggers an update
         # to the graphic to display the first chromosome
@@ -299,7 +330,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         chrom = self.intervals.get_group(chr_id)
 
         graphic = pn.Column()
-        if self.filter.has_chromosome_block(chr_id):
+        if chr_id in self._chromosome_names:
             self.blocks, self.summary = self.filter.apply(chr_id)
             grid = self._make_grid()
             graphic.append(grid)
