@@ -17,6 +17,8 @@ from scipy.signal import find_peaks
 from rich.console import Console
 from rich.table import Table
 
+from .config import chr_length
+
 def extract_blocks(chromosome, max_block_size):
     '''
     Use `find_peaks` from the SciPy signal processing library to look for
@@ -63,17 +65,6 @@ def majority_background(chr):
     n2_count = len(n2_group) if 'N2' in grps else 0
     cb_count = len(cb_group) if 'CB4856' in grps else 0
     return 'N2' if n2_count > cb_count else 'CB4856'
-
-# Chromosome lengths
-
-chr_length = {
-    1: 15114068,
-    2: 15311845,
-    3: 13819453,
-    4: 17493838,
-    5: 20953657,
-    6: 17739129,
-}
 
 def add_background(cf, df):
     '''

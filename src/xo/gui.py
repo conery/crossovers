@@ -198,30 +198,47 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
 
         self.attach_callbacks()
 
+        peaks_tab = pn.Column(
+            pn.pane.HTML('<h3>Find Peaks (TBD)</h3>'),
+            pn.pane.HTML('<p>Run the "peak finder" algorithm to identify blocks of SNPs with potential noncrossover events.</p>'),
+        )
+
+        filter_tab = pn.Column(
+            pn.pane.HTML('<h3>Filter Blocks</h3>'),
+            pn.pane.HTML('<p>Apply methods that filter SNPs from blocks.</p>'),
+        )
+        post_tab = pn.Column(
+            pn.pane.HTML('<h3>Postprocessor</h3>'),
+            pn.pane.HTML('<p>Scan filtered blocks to locate noncrossovers.</p>'),
+        )
+
         chr_tab = pn.Column(
-            pn.pane.HTML('<h3>Chromosome</h3>'),
+            pn.pane.HTML('<h3>Chromosome Viewer</h3>'),
             pn.Row(self.back_button, self.chromosome_id, self.forward_button),
             pn.pane.HTML('<p>Placeholder</p>'),
         )
 
-        summ_tab = pn.Column(
-            pn.pane.HTML('<h3>Summary</h3>'),
-            self.chromosome_pattern,
-            pn.Row(self.size_graph_button, self.length_graph_button, self.location_graph_button),
-            pn.pane.HTML('<p>Click a button above to generate a plot summarizing all chromosomes.</p>')
-        )
+        # summ_tab = pn.Column(
+        #     pn.pane.HTML('<h3>Summary</h3>'),
+        #     self.chromosome_pattern,
+        #     pn.Row(self.size_graph_button, self.length_graph_button, self.location_graph_button),
+        #     pn.pane.HTML('<p>Click a button above to generate a plot summarizing all chromosomes.</p>')
+        # )
 
         self.tabs = pn.Tabs(
-            ('Chromosome', chr_tab),
-            ('Summary', summ_tab),
+            ('Peaks', peaks_tab),
+            ('Filter', filter_tab),
+            ('Postprocess', post_tab),
+            ('Chromosomes', chr_tab),
+            # ('Summary', summ_tab),
         )
 
-        self.sidebar.append(
-            pn.Column(
-                self.filter_widgets,
-                self.download_pane,
-            )
-        )
+        # self.sidebar.append(
+        #     pn.Column(
+        #         self.filter_widgets,
+        #         self.download_pane,
+        #     )
+        # )
 
         self.main.append(self.tabs)
 
@@ -503,7 +520,7 @@ def make_app(args):
     """
     app = PeakViewerApp(
         title='NCO Explorer', 
-        sidebar_width=SIDEBAR_WIDTH,
+        # sidebar_width=SIDEBAR_WIDTH,
     )
     app.load_data(args)
     return app

@@ -20,6 +20,8 @@ import re
 from rich.console import Console
 from rich.table import Table
 
+from .config import Config
+
 class SNPFilter:
     """
     A SNPFilter applies filtering criteria to SNPs in blocks identified by the
@@ -35,12 +37,11 @@ class SNPFilter:
     """
 
     def __init__(self, args):
-        self._chromosome = 'BSP.*'
-        self._min_size = 1
-        self._max_size = 100
-        self._min_length = 1
-        self._max_length = 10000
-        self._coverage = 0
+        c = Config()
+        self._chromosome = c.filter_chromosome_pattern
+        self._min_size, self._max_size = c.filter_block_size
+        self._min_length, self._max_length = c.filter_block_length
+        self._coverage = c.filter_coverage
         self._matched = False
         self._result = None
         self._summary = None
@@ -185,20 +186,21 @@ class NCOFilter:
     Call a method named `apply` to filter a data set.
 
     Attributes:
-      min_z:     homozygosity for type A blocks
-      delta_z:   homozygosity for type B blocks
-      min_snps:  minumum number of SNPs of each type
-      length:    minimum block length
+      min_z:      homozygosity for type A blocks
+      delta_z:    homozygosity for type B blocks
+      min_cover:  minumum number of reads of each type
+      length:     minimum block length
     """
 
     def __init__(self, args):
-        self._min_z = 0.9
-        self._delta_z = 0.1
-        self._min_snps = 2
-        self._length = 5
+        c = Config()
+        self._min_z = c.post_min_z
+        self._delta_z = c.post_delta_z
+        self._min_cover = c.post_min_cover
+        self._length = c.post_block_length
         self._result = None
 
-        filter_params = ['min_z','delta_z', 'min_snps', 'length']
+        filter_params = ['min_z','delta_z', 'min_cover', 'length']
 
         for attr in filter_params:
             if val := args.get(attr):
@@ -207,7 +209,7 @@ class NCOFilter:
     def __repr__(self):
         res = f' z {self._min_z}'
         res += f' ∆ {self._delta_z}'
-        res += f' snps {self._min_snps}'
+        res += f' snps {self._min_cover}'
         res += f' len {self._length}'
         return res
 
@@ -230,13 +232,13 @@ class NCOFilter:
         self._delta_z = x
 
     @property
-    def min_snps(self):
+    def min_cover(self):
         '''Minimum number of SNPs of each type'''
-        return self._min_snps
+        return self._min_cover
     
-    @min_snps.setter
-    def min_snps(self, n):
-        self._min_snps = n
+    @min_cover.setter
+    def min_cover(self, n):
+        self._min_cover = n
 
     @property
     def length(self):
@@ -298,11 +300,11 @@ class NCOFilter:
         z = block.homozygosity
         if block.iloc[0].background == 'CB4856':
             rr = block.ref_reads
-            p = z.where((z >= self.min_z) & (rr >= self.min_snps))
+            p = z.where((z >= self.min_z) & (rr >= self.min_cover))
         else:
             rr = block.ref_reads
             vr = block.var_reads
-            p = z.where((abs(z - 0.5) <= self.delta_z) & (rr >= self.min_snps) & (vr >= self.min_snps))
+            p = z.where((abs(z - 0.5) <= self.delta_z) & (rr >= self.min_cover) & (vr >= self.min_cover))
 
         i = j = 0
         while next_interval():
