@@ -157,7 +157,7 @@ def init_cli():
     post_parser.add_argument('--min_z', metavar='N', type=float, default=c.post_min_z, help='homozygosity for Type A blocks')
     post_parser.add_argument('--delta_z', metavar='N', type=float, default=c.post_delta_z, help='homozygosity for Type B blocks')
     post_parser.add_argument('--min_cover', metavar='N', type=int, default=c.post_min_cover, help='minimum number of reads of each type')
-    post_parser.add_argument('--length', metavar='N', type=int, default=c.post_block_length, help='minimum block length (bp)')
+    post_parser.add_argument('--size', metavar='N', type=int, default=c.post_block_size, help='minimum block size (bp)')
     post_parser.set_defaults(func=postprocess)
 
     if len(sys.argv) == 1:
@@ -171,16 +171,13 @@ def setup_logging(args):
     Configure the logging modile.  Uncomment one of the three levels
     for each command to define the logging level.
     """
-    if args.cmnd == 'gui':
-        level = logging.INFO
-    else:
-        match args.log:
-            case 'info':
-                level = logging.INFO
-            case 'debug':
-                level = logging.DEBUG
-            case _:
-                level = logging.WARNING
+    match args.log:
+        case 'info':
+            level = logging.INFO
+        case 'debug':
+            level = logging.DEBUG
+        case _:
+            level = logging.WARNING
     logging.basicConfig(
         level=level,
         style='{',

@@ -189,7 +189,7 @@ class NCOFilter:
       min_z:      homozygosity for type A blocks
       delta_z:    homozygosity for type B blocks
       min_cover:  minumum number of reads of each type
-      length:     minimum block length
+      size:     minimum block size
     """
 
     def __init__(self, args):
@@ -197,10 +197,10 @@ class NCOFilter:
         self._min_z = c.post_min_z
         self._delta_z = c.post_delta_z
         self._min_cover = c.post_min_cover
-        self._length = c.post_block_length
+        self._size = c.post_block_size
         self._result = None
 
-        filter_params = ['min_z','delta_z', 'min_cover', 'length']
+        filter_params = ['min_z','delta_z', 'min_cover', 'size']
 
         for attr in filter_params:
             if val := args.get(attr):
@@ -210,7 +210,7 @@ class NCOFilter:
         res = f' z {self._min_z}'
         res += f' ∆ {self._delta_z}'
         res += f' snps {self._min_cover}'
-        res += f' len {self._length}'
+        res += f' len {self._size}'
         return res
 
     @property
@@ -241,13 +241,13 @@ class NCOFilter:
         self._min_cover = n
 
     @property
-    def length(self):
-        '''Minimum block length'''
-        return self._length
+    def size(self):
+        '''Minimum block size'''
+        return self._size
     
-    @length.setter
-    def length(self, n):
-        self._length = n
+    @size.setter
+    def size(self, n):
+        self._size = n
 
     @property
     def result(self):
@@ -289,11 +289,11 @@ class NCOFilter:
             while j < len(p):
                 # logging.debug(f'{i} {j} {p.iloc[j]}')
                 if np.isnan(p.iloc[j]):
-                    if j - i >= self.length:
+                    if j - i >= self.size:
                         break
                     i = j+1
                 j += 1
-            return j - i >= self.length
+            return j - i >= self.size
         
         res = []
 

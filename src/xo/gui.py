@@ -10,10 +10,10 @@
 #
 
 import io
+import logging
+import numpy as np
 import pandas as pd
 import panel as pn
-import numpy as np
-import logging
 
 from pathlib import Path
 
@@ -22,7 +22,7 @@ from matplotlib.colors import CSS4_COLORS as colors
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle, Circle
 
-from xo.filters import SNPFilter
+from xo.filters import SNPFilter, NCOFilter
 from xo.config import Config
 
 pn.extension('tabulator')
@@ -75,7 +75,7 @@ class BlockLengthFilterWidget(pn.widgets.IntRangeSlider):
             name = 'Block Length (bp)',
             start = c.filter_block_length[0],
             end = c.filter_block_length[1],
-            step = 10,
+            step = 100,
         )
         self.value = (self.start, self.end)
         self.tags = ['length', 1]     
@@ -141,13 +141,120 @@ class SupportFilterWidget(pn.widgets.Checkbox):
         self.filter.matched = self.value
 
 
-class FilterBox(pn.Column):
+class TypeAMinFilterWidget(pn.widgets.TextInput):
     """
-    A FilterBox is a column layout that has a label and an instance
-    of each of the filter widgets.
+    Display a text entry box for the minimum homozygosity for Type A NCOs
     """
 
     def __init__(self, f):
+        '''
+        Arguments:
+          f:  the NCOFilter object with the method that does the filtering
+        '''
+        c = Config()
+        super(TypeAMinFilterWidget,self).__init__(
+            name = 'Type A Minimum Homozygosity',
+            width = 75,
+        )
+        # self.tags = ['match', 0]
+        self.value = f'{c.post_min_z:0.2f}'
+        self.filter = f
+
+    def filter_cb(self):
+        '''
+        Callback activated when the text changes.  Saves the new
+        value in the filter object.
+        '''
+        self.filter.min_z = float(self.value)
+
+
+class TypeBDeltaFilterWidget(pn.widgets.TextInput):
+    """
+    Display a text entry box for the homozygosity range for Type B NCOs
+    """
+
+    def __init__(self, f):
+        '''
+        Arguments:
+          f:  the NCOFilter object with the method that does the filtering
+        '''
+        c = Config()
+        super(TypeBDeltaFilterWidget,self).__init__(
+            name = 'Type B Homozygosity Range',
+            width = 75,
+        )
+        # self.tags = ['match', 0]
+        self.value = f'{c.post_delta_z:0.2f}'
+        self.filter = f
+
+    def filter_cb(self):
+        '''
+        Callback activated when the text changes.  Saves the new
+        value in the filter object.
+        '''
+        self.filter.delta_z = float(self.value)
+
+class NCOSizeFilterWidget(pn.widgets.TextInput):
+    """
+    Display a text entry box for the minimum number of SNPs in an NCO
+    """
+
+    def __init__(self, f):
+        '''
+        Arguments:
+          f:  the NCOFilter object that will do the filtering.
+        '''
+        c = Config()
+        super(NCOSizeFilterWidget,self).__init__(
+            name = 'NCO Minimum Size (#SNPs)',
+            width = 50,
+        )
+        self.value = str(c.post_block_size)
+        # self.tags = ['size', 1]
+        self.filter = f
+
+    def filter_cb(self):
+        '''
+        Callback activated when the text changes.  Saves the new
+        value in the filter object.
+        '''
+        self.filter.length = int(self.value)
+
+
+class NCOCoverFilterWidget(pn.widgets.TextInput):
+    """
+    Display a text entry box for the minimum coverage in an NCO
+    """
+
+    def __init__(self, f):
+        '''
+        Arguments:
+          f:  the NCOFilter object that will do the filtering.
+        '''
+        c = Config()
+        super(NCOCoverFilterWidget,self).__init__(
+            name = 'NCO Minimum Coverage',
+            width=50,
+        )
+        self.value = str(c.post_min_cover)
+        # self.tags = ['size', 1]
+        self.filter = f
+
+    def filter_cb(self):
+        '''
+        Callback activated when the text changes.  Saves the new
+        value in the filter object.
+        '''
+        self.min_cover = int(self.value)
+
+
+class FilterBox(pn.Column):
+    """
+    A FilterBox is a column layout that has labels and an instance
+    of each of the filter widgets.
+    """
+
+    def __init__(self, snp_filter):
         '''
         The `__init__` method instantiates the widgets that will
         filter SNPs and puts them in the Column
@@ -158,14 +265,12 @@ class FilterBox(pn.Column):
               the constructors for each filter widget)
         '''
         super(FilterBox, self).__init__()
-        self._widgets = [
-            BlockSizeFilterWidget(f), 
-            BlockLengthFilterWidget(f), 
-            CoverageFilterWidget(f), 
-            SupportFilterWidget(f),
-        ]
-        self.append(pn.pane.HTML("<h3>Filters</h3>"))
-        self.extend(self._widgets)
+
+        self._widgets = []
+        for cls in [BlockSizeFilterWidget, BlockLengthFilterWidget, CoverageFilterWidget, SupportFilterWidget]:
+            w = cls(snp_filter)
+            self._widgets.append(w)
+            self.append(w)
 
     def widgets(self):
         '''
@@ -173,6 +278,38 @@ class FilterBox(pn.Column):
         '''
         return self._widgets
         
+
+class NCOFilterBox(pn.Column):
+    """
+    A FilterBox is a column layout that has labels and an instance
+    of each of the filter widgets.
+    """
+
+    def __init__(self, nco_filter):
+        '''
+        The `__init__` method instantiates the widgets that will
+        filter SNPs and puts them in the Column
+        in the order they will be displayed.
+
+        Arguments:
+          f:  the filter object with the method that does the filtering (passed to
+              the constructors for each filter widget)
+        '''
+        super(NCOFilterBox, self).__init__()
+
+        self._widgets = []
+       
+        for cls in [TypeAMinFilterWidget, TypeBDeltaFilterWidget, NCOCoverFilterWidget, NCOSizeFilterWidget]:
+            logging.debug(f'{cls}')
+            w = cls(nco_filter)
+            self._widgets.append(w)
+            self.append(w)
+
+    def widgets(self):
+        '''
+        Return a list of filter widgets.
+        '''
+        return self._widgets
 
 class PeakViewerApp(pn.template.BootstrapTemplate):
 
@@ -185,8 +322,14 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self._filtered = None           # filtered blocks
         self._ncos = None               # NCOs
 
-        self.filter = SNPFilter({})
-        self.filter_widgets = FilterBox(self.filter)
+        self.snp_filter = SNPFilter({})
+        self.filter_widgets = FilterBox(self.snp_filter)
+
+        self.nco_filter = NCOFilter({})
+        self.nco_widgets = NCOFilterBox(self.nco_filter)
+        self.nco_widgets.visible = False
+
+        self.find_ncos = pn.widgets.Switch(name='nco_switch')
 
         button_style_sheet = ''':host(.solid) .bk-btn {
             --color: white;
@@ -226,6 +369,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             pn.pane.HTML('<h3>Chromosome Viewer</h3>'),
             pn.Row(self.back_button, self.chromosome_id, self.forward_button),
             pn.pane.HTML('<p>Placeholder</p>'),
+            height=800,
         )
 
         # summ_tab = pn.Column(
@@ -235,13 +379,13 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         #     pn.pane.HTML('<p>Click a button above to generate a plot summarizing all chromosomes.</p>')
         # )
 
-        self.tabs = pn.Tabs(
-            ('Peaks', peaks_tab),
-            ('Filter', filter_tab),
-            ('Postprocess', post_tab),
-            ('Chromosomes', chr_tab),
-            # ('Summary', summ_tab),
-        )
+        # self.tabs = pn.Tabs(
+        #     ('Peaks', peaks_tab),
+        #     ('Filter', filter_tab),
+        #     ('Postprocess', post_tab),
+        #     ('Chromosomes', chr_tab),
+        #     # ('Summary', summ_tab),
+        # )
 
         # self.sidebar.append(
         #     pn.Column(
@@ -250,7 +394,16 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         #     )
         # )
 
-        self.main.append(self.tabs)
+        self.sidebar.append(pn.pane.HTML("<h3>Block Parameters</h3>"))
+        self.sidebar.append(self.filter_widgets)
+        self.sidebar.append(pn.layout.Divider())
+        self.sidebar.append(pn.Row(
+            pn.pane.HTML("<b>Find NCOs</b>"),
+            self.find_ncos,
+        ))
+        self.sidebar.append(self.nco_widgets)
+
+        self.main.append(chr_tab)
 
     def attach_callbacks(self):
         '''
@@ -268,6 +421,26 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             w.param.watch(self.summary_plot_cb, ['value'])
 
         self.chromosome_id.param.watch(self.chromosome_edited_cb, ['value'])      
+
+        self.find_ncos.param.watch(self.find_ncos_cb, ['value'])
+
+    # def setup_logging(self):
+    #     c = Config()
+    #     terminal = pn.widgets.Terminal('', height=c.terminal_height)
+    #     sys.stdout = terminal
+
+        # logger = logging.getLogger("terminal")
+        # logger.setLevel(logging.INFO)
+
+        # stream_handler = logging.StreamHandler(terminal)
+        # stream_handler.terminator = "  \n"
+        # formatter = logging.Formatter("%(asctime)s [%(levelname)s]: %(message)s")
+
+        # stream_handler.setFormatter(formatter)
+        # stream_handler.setLevel(logging.INFO)
+        # logger.addHandler(stream_handler)
+
+        # self.main.append(terminal)
 
     def load_data(self, args):
         '''
@@ -326,6 +499,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         the HMM.  Below that is a grid with one row for each block of SNPs identifed by
         the peak finder.  Draw a vertical line at the crossover location (if there is one).
         '''
+        return
         chr_id = self.chromosome_id.value
         chrom = self.intervals.get_group(chr_id)
 
@@ -446,7 +620,13 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         checkbox, etc) is activated.
         '''
         e.obj.filter_cb()
-        self.display_chromosome()        
+        self.display_chromosome()       
+
+    def find_ncos_cb(self, e):
+        '''
+        Callback function invoked when the 'Find NCOs' switch is toggled
+        ''' 
+        self.nco_widgets.visible = not self.nco_widgets.visible
 
     def change_chromosome_cb(self, e):
         '''
@@ -549,11 +729,15 @@ def make_app(args):
     Returns:
         a PeakViewerApp object
     """
+    c = Config()
+
     app = PeakViewerApp(
         title='NCO Explorer', 
-        # sidebar_width=SIDEBAR_WIDTH,
+        sidebar_width=c.sidebar_width,
     )
     app.load_data(args)
+    if args.log != 'quiet':
+        logging.getLogger('bokeh').setLevel(logging.ERROR)
     return app
 
 def start_app(args):
@@ -571,10 +755,10 @@ def start_app(args):
             app,
             port = args.port,
             verbose = True,
-            autoreload = False,
+            autoreload = True,
             websocket_origin= '*',
         )
     except Exception as err:
-        logging.error(err)
+        logging.exception(err)
 
 

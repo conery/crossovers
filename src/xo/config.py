@@ -26,7 +26,11 @@ class Config:
     post_min_z = 0.9
     post_delta_z = 0.1
     post_min_cover = 2
-    post_block_length = 5
+    post_block_size = 5
+
+    # GUI settings
+    sidebar_width = 350
+    terminal_height = 200
 
 # Chromosome lengths
 
