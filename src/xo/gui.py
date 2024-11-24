@@ -23,7 +23,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle, Circle
 
 from xo.filters import SNPFilter, NCOFilter
-from xo.config import Config
+from xo.config import Config, chr_length
 
 pn.extension('tabulator')
 
@@ -317,19 +317,18 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
 
         super(PeakViewerApp, self).__init__(**params)
 
-        self._snps = None               # SNP data from TIGER
-        self._blocks = None             # blocks found by peak finder
-        self._filtered = None           # filtered blocks
-        self._ncos = None               # NCOs
+        self.peaks = None               # groups of SNPs found by peak finder
+        # self._filtered = None           # filtered blocks
+        # self._ncos = None               # NCOs
 
         self.snp_filter = SNPFilter({})
-        self.filter_widgets = FilterBox(self.snp_filter)
+        self.block_widgets = FilterBox(self.snp_filter)
 
         self.nco_filter = NCOFilter({})
         self.nco_widgets = NCOFilterBox(self.nco_filter)
         self.nco_widgets.visible = False
 
-        self.find_ncos = pn.widgets.Switch(name='nco_switch')
+        self.nco_switch = pn.widgets.Switch(name='nco_switch')
 
         button_style_sheet = ''':host(.solid) .bk-btn {
             --color: white;
@@ -340,70 +339,34 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.forward_button = pn.widgets.Button(name='▶︎', stylesheets=[button_style_sheet])
         self.chromosome_id = pn.widgets.TextInput(name="", value="")
 
-        self.chromosome_pattern = pn.widgets.TextInput(name="Chromosomes", value="BSP.*")
-        self.size_graph_button = pn.widgets.Button(name='Block Size', stylesheets=[button_style_sheet])
-        self.length_graph_button = pn.widgets.Button(name='Block Length', stylesheets=[button_style_sheet])
-        self.location_graph_button = pn.widgets.Button(name='Block Location', stylesheets=[button_style_sheet])
+        # self.chromosome_pattern = pn.widgets.TextInput(name="Chromosomes", value="BSP.*")
+        # self.size_graph_button = pn.widgets.Button(name='Block Size', stylesheets=[button_style_sheet])
+        # self.length_graph_button = pn.widgets.Button(name='Block Length', stylesheets=[button_style_sheet])
+        # self.location_graph_button = pn.widgets.Button(name='Block Location', stylesheets=[button_style_sheet])
 
-        self.download_button = pn.widgets.FileDownload(callback=self.download_cb, filename='summary.csv', align='center', icon='download')
-        self.download_pane = pn.GridBox(self.download_button, height=200, width=SIDEBAR_WIDTH)
-        self.download_button.visible = False
+        # self.download_button = pn.widgets.FileDownload(callback=self.download_cb, filename='summary.csv', align='center', icon='download')
+        # self.download_pane = pn.GridBox(self.download_button, height=200, width=SIDEBAR_WIDTH)
+        # self.download_button.visible = False
 
         self.attach_callbacks()
 
-        peaks_tab = pn.Column(
-            pn.pane.HTML('<h3>Find Peaks (TBD)</h3>'),
-            pn.pane.HTML('<p>Run the "peak finder" algorithm to identify blocks of SNPs with potential noncrossover events.</p>'),
-        )
-
-        filter_tab = pn.Column(
-            pn.pane.HTML('<h3>Filter Blocks</h3>'),
-            pn.pane.HTML('<p>Apply methods that filter SNPs from blocks.</p>'),
-        )
-        post_tab = pn.Column(
-            pn.pane.HTML('<h3>Postprocessor</h3>'),
-            pn.pane.HTML('<p>Scan filtered blocks to locate noncrossovers.</p>'),
-        )
-
-        chr_tab = pn.Column(
+        self.chromosome_panel = pn.Column(
             pn.pane.HTML('<h3>Chromosome Viewer</h3>'),
             pn.Row(self.back_button, self.chromosome_id, self.forward_button),
             pn.pane.HTML('<p>Placeholder</p>'),
             height=800,
         )
 
-        # summ_tab = pn.Column(
-        #     pn.pane.HTML('<h3>Summary</h3>'),
-        #     self.chromosome_pattern,
-        #     pn.Row(self.size_graph_button, self.length_graph_button, self.location_graph_button),
-        #     pn.pane.HTML('<p>Click a button above to generate a plot summarizing all chromosomes.</p>')
-        # )
-
-        # self.tabs = pn.Tabs(
-        #     ('Peaks', peaks_tab),
-        #     ('Filter', filter_tab),
-        #     ('Postprocess', post_tab),
-        #     ('Chromosomes', chr_tab),
-        #     # ('Summary', summ_tab),
-        # )
-
-        # self.sidebar.append(
-        #     pn.Column(
-        #         self.filter_widgets,
-        #         self.download_pane,
-        #     )
-        # )
-
         self.sidebar.append(pn.pane.HTML("<h3>Block Parameters</h3>"))
-        self.sidebar.append(self.filter_widgets)
+        self.sidebar.append(self.block_widgets)
         self.sidebar.append(pn.layout.Divider())
         self.sidebar.append(pn.Row(
             pn.pane.HTML("<b>Find NCOs</b>"),
-            self.find_ncos,
+            self.nco_switch,
         ))
         self.sidebar.append(self.nco_widgets)
 
-        self.main.append(chr_tab)
+        self.main.append(self.chromosome_panel)
 
     def attach_callbacks(self):
         '''
@@ -411,36 +374,18 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         It connects various widgets to functions that will be called when
         the widgets are activated.
         '''
-        for w in self.filter_widgets.widgets():
+        for w in self.block_widgets.widgets():
             w.param.watch(self.filter_cb, ['value'])
 
         for w in [self.back_button, self.forward_button]:
             w.param.watch(self.change_chromosome_cb, ['value'])
 
-        for w in [self.size_graph_button, self.length_graph_button, self.location_graph_button]:
-            w.param.watch(self.summary_plot_cb, ['value'])
+        # for w in [self.size_graph_button, self.length_graph_button, self.location_graph_button]:
+        #     w.param.watch(self.summary_plot_cb, ['value'])
 
         self.chromosome_id.param.watch(self.chromosome_edited_cb, ['value'])      
 
-        self.find_ncos.param.watch(self.find_ncos_cb, ['value'])
-
-    # def setup_logging(self):
-    #     c = Config()
-    #     terminal = pn.widgets.Terminal('', height=c.terminal_height)
-    #     sys.stdout = terminal
-
-        # logger = logging.getLogger("terminal")
-        # logger.setLevel(logging.INFO)
-
-        # stream_handler = logging.StreamHandler(terminal)
-        # stream_handler.terminator = "  \n"
-        # formatter = logging.Formatter("%(asctime)s [%(levelname)s]: %(message)s")
-
-        # stream_handler.setFormatter(formatter)
-        # stream_handler.setLevel(logging.INFO)
-        # logger.addHandler(stream_handler)
-
-        # self.main.append(terminal)
+        self.nco_switch.param.watch(self.find_ncos_cb, ['value'])
 
     def load_data(self, args):
         '''
@@ -452,6 +397,13 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
           * the peaks data file (loaded by the filter object) has blocks of SNPs to
             visualize
           * the crossover data file has locations of main crossover points
+
+        Chromosome names are saved in two instance vars:
+          * clist is a list of all chromosome names; the forward and backward buttons
+            move to the next or previous chromosome in this list
+          * cmap is a dictionary that maps chromosome names to locations in clist; when
+            the user types a new name in the chromosome name box the app uses the map
+            to find the new list location
 
         Arguments:
           args:  command line arguments 
@@ -468,24 +420,26 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.crossovers = pd.read_pickle(c.crossovers_default, compression='gzip').groupby('chrom_id')
         logging.info(f'  read {len(self.crossovers)} crossovers')
 
-        p = Path(args.peaks)
-        if p.is_file():
-            logging.info('Loading blocks')
-            self._blocks = pd.read_csv(p).groupby(['chrom_id','blk_id'])
-            logging.info(f'  read {len(self._blocks)} blocks from {args.peaks}')
-            self._chromosome_names = self._blocks.count().index.levels[0]
+        logging.info('Loading peaks')
+        df = pd.read_csv(args.peaks)
+        df['chr_length'] = df.chromosome.map(lambda n: chr_length[n])
+        df['location'] = df.position / df.chr_length
+        df['homozygosity'] = df.ref_reads / (df.ref_reads + df.var_reads)
+        self.peaks = df.groupby('chrom_id')
 
-        p = Path(args.filtered)
-        if p.is_file():
-            logging.info('Loading filtered')
-            self._filtered = pd.read_csv(p)
-            logging.info(f'  read {len(self._filtered)} filtered blocks from {args.filtered}')
+        # self._chromosome_names = self.peaks.groups.keys()
 
-        p = Path(args.ncos)
-        if p.is_file():
-            logging.info('Loading NCOs')
-            self._ncos = pd.read_csv(p)
-            logging.info(f'  read {len(self._ncos)} NCO blocks from {args.ncos}')
+        # p = Path(args.filtered)
+        # if p.is_file():
+        #     logging.info('Loading filtered')
+        #     self._filtered = pd.read_csv(p)
+        #     logging.info(f'  read {len(self._filtered)} filtered blocks from {args.filtered}')
+
+        # p = Path(args.ncos)
+        # if p.is_file():
+        #     logging.info('Loading NCOs')
+        #     self._ncos = pd.read_csv(p)
+        #     logging.info(f'  read {len(self._ncos)} NCO blocks from {args.ncos}')
 
         # setting a value in the chromosome name widget triggers an update
         # to the graphic to display the first chromosome
@@ -499,13 +453,15 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         the HMM.  Below that is a grid with one row for each block of SNPs identifed by
         the peak finder.  Draw a vertical line at the crossover location (if there is one).
         '''
-        return
         chr_id = self.chromosome_id.value
         chrom = self.intervals.get_group(chr_id)
-
+        logging.info(f'peak {chr_id}, {len(chrom)} SNPs')
+    
         graphic = pn.Column()
-        if chr_id in self._chromosome_names:
-            self.blocks, self.summary = self.filter.apply(chr_id)
+        if chr_id in self.peaks.groups:
+            df = self.peaks.get_group(chr_id)
+            res, self.summary = self.snp_filter.apply(df)
+            self.blocks = res.groupby('blk_id')
             grid = self._make_grid()
             graphic.append(grid)
 
@@ -526,8 +482,8 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         plt.close(fig)
         graphic.insert(0,pn.pane.Matplotlib(fig, dpi=72, tight=True))
 
-        self.tabs[0].pop(-1)
-        self.tabs[0].append(graphic)
+        self.chromosome_panel.pop(-1)
+        self.chromosome_panel.append(graphic)
 
     def _make_patches(self, df, chr_id):
         '''
@@ -544,8 +500,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         for _, r in df.iterrows():
             c = pcolor.get(r.hmm_state) or 'lightgray'
             res.append(Rectangle((r.start,500000), r.length, 1000000, color=c))
-        if self.filter.has_chromosome_block(chr_id):
-            for blk_id, _ in self.summary.iterrows():
+        if chr_id in self.peaks.groups:
+            print('patches for', chr_id)
+            print(self.summary.head())
+            for blk_index, _ in self.summary.iterrows():
+                _, blk_id = blk_index
                 block = self.blocks.get_group(blk_id)
                 x0 = block.iloc[0].position
                 res.append(Circle((x0,750000), 50000, color='black'))
@@ -571,7 +530,8 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.block_buttons = {}
         self.block_text = {}
         g = pn.Column()
-        for blk_id, blk_stats in self.summary.iterrows():
+        for blk_index, blk_stats in self.summary.iterrows():
+            _, blk_id = blk_index
             block = self.blocks.get_group(blk_id)
             fig, ax = plt.subplots(figsize=(10,0.8))
             plt.box(False)
@@ -649,74 +609,74 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             self.chromosome_id.value = self.clist[idx]
             self.display_chromosome()
 
-    histogram_params = {
-        'Block Size': {
-            'col':     'blk_size',
-            'title':   'Block Size',
-            'xlabel':  'Number of SNPs',
-            'ylabel':  'Number of Blocks',
-            'hist': {
-                'bins': 10,
-                'rwidth': 0.8,
-                'align': 'left',
-                'range': (1,100),
-            },
-        },
-        'Block Length': {
-            'col':     'blk_len',
-            'title':   'Block Length',
-            'xlabel':  'Length (bp)',
-            'ylabel':  'Number of Blocks',
-            'hist': {
-                'bins': 10,
-                'rwidth': 0.8,
-            },
-        },
-        'Block Location': {
-            'col':     'blk_loc',
-            'title':   'Block Location',
-            'xlabel':  'Relative Position in the Chromosome',
-            'ylabel':  'Number of Blocks',
-            'hist': {
-                'bins': 100,
-                'range': (0,1),
-            },
-        },
-    }
+    # histogram_params = {
+    #     'Block Size': {
+    #         'col':     'blk_size',
+    #         'title':   'Block Size',
+    #         'xlabel':  'Number of SNPs',
+    #         'ylabel':  'Number of Blocks',
+    #         'hist': {
+    #             'bins': 10,
+    #             'rwidth': 0.8,
+    #             'align': 'left',
+    #             'range': (1,100),
+    #         },
+    #     },
+    #     'Block Length': {
+    #         'col':     'blk_len',
+    #         'title':   'Block Length',
+    #         'xlabel':  'Length (bp)',
+    #         'ylabel':  'Number of Blocks',
+    #         'hist': {
+    #             'bins': 10,
+    #             'rwidth': 0.8,
+    #         },
+    #     },
+    #     'Block Location': {
+    #         'col':     'blk_loc',
+    #         'title':   'Block Location',
+    #         'xlabel':  'Relative Position in the Chromosome',
+    #         'ylabel':  'Number of Blocks',
+    #         'hist': {
+    #             'bins': 100,
+    #             'range': (0,1),
+    #         },
+    #     },
+    # }
 
-    def summary_plot_cb(self, e):
-        '''
-        Callback function invoked when the user clicks the name of one of the 
-        histograms in the summary tab.  All histograms have the same basic parameters,
-        those that are specific to a type of data are defined in the
-        `histogram_params` dictionary.
-        '''
-        params = self.histogram_params[e.obj.name]
-        self.tabs[1].loading = True
-        # self.filter.set_chromosome(self.chromosome_pattern.value)
-        self.filter.chromosome = self.chromosome_pattern.value
-        self.summary_df = self.filter.summary()
-        fig, ax = plt.subplots(figsize=(7,5))
-        plt.hist(self.summary_df[params['col']], label=self.chromosome_pattern.value, **params['hist'])
-        plt.title(params['title'])
-        plt.xlabel(params['xlabel'])
-        plt.ylabel(params['ylabel'])
-        plt.legend(handlelength=0)
-        plt.close(fig)
-        self.tabs[1].loading = False
-        self.tabs[1].pop(-1)
-        self.tabs[1].append(pn.pane.Matplotlib(fig, dpi=72, tight=True))
-        self.download_button.visible = True
+    # def summary_plot_cb(self, e):
+    #     '''
+    #     Callback function invoked when the user clicks the name of one of the 
+    #     histograms in the summary tab.  All histograms have the same basic parameters,
+    #     those that are specific to a type of data are defined in the
+    #     `histogram_params` dictionary.
+    #     '''
+    #     params = self.histogram_params[e.obj.name]
+    #     self.tabs[1].loading = True
+    #     # self.filter.set_chromosome(self.chromosome_pattern.value)
+    #     self.filter.chromosome = self.chromosome_pattern.value
+    #     self.summary_df = self.filter.summary()
+    #     fig, ax = plt.subplots(figsize=(7,5))
+    #     plt.hist(self.summary_df[params['col']], label=self.chromosome_pattern.value, **params['hist'])
+    #     plt.title(params['title'])
+    #     plt.xlabel(params['xlabel'])
+    #     plt.ylabel(params['ylabel'])
+    #     plt.legend(handlelength=0)
+    #     plt.close(fig)
+    #     self.tabs[1].loading = False
+    #     self.tabs[1].pop(-1)
+    #     self.tabs[1].append(pn.pane.Matplotlib(fig, dpi=72, tight=True))
+    #     self.download_button.visible = True
 
-    def download_cb(self):
-        '''
-        Callback function invoked when the user clicks the download button (made 
-        visible after plotting a histogram).
-        '''
-        sio = io.StringIO()
-        self.summary_df.to_csv(sio)
-        sio.seek(0)
-        return sio
+    # def download_cb(self):
+    #     '''
+    #     Callback function invoked when the user clicks the download button (made 
+    #     visible after plotting a histogram).
+    #     '''
+    #     sio = io.StringIO()
+    #     self.summary_df.to_csv(sio)
+    #     sio.seek(0)
+    #     return sio
 
 
 def make_app(args):

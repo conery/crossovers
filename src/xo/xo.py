@@ -92,7 +92,7 @@ def filter_blocks(args):
     peaks['location'] = peaks.position / peaks.chr_length
     peaks['homozygosity'] = peaks.ref_reads / (peaks.ref_reads + peaks.var_reads)
 
-    res = filter.apply(peaks)
+    res, _ = filter.apply(peaks)
     res.to_csv(args.output, index=False)
 
 
@@ -128,8 +128,8 @@ def init_cli():
 
     gui_parser = subparsers.add_parser('gui', help='explore blocks and NCOs')
     gui_parser.add_argument('--peaks', metavar='F', default=c.peaks_output_default, help='blocks saved by peaks.py')
-    gui_parser.add_argument('--filtered', metavar='F', default=c.filter_output_default, help='filtered blocks')
-    gui_parser.add_argument('--ncos', metavar='F', default=c.post_output_default, help='NCOs')
+    # gui_parser.add_argument('--filtered', metavar='F', default=c.filter_output_default, help='filtered blocks')
+    # gui_parser.add_argument('--ncos', metavar='F', default=c.post_output_default, help='NCOs')
     gui_parser.add_argument('--port', metavar='N', type=int, default=5006, help='local port for the Panel server')
     gui_parser.set_defaults(func=start_app)
 

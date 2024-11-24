@@ -173,10 +173,7 @@ class SNPFilter:
 
         res = pd.concat(groups.get_group(n) for n in sf.index)
 
-        self._result = res
-        self._summary = sf
-
-        return res
+        return res, sf
 
 
 class NCOFilter:
