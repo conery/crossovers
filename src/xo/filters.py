@@ -139,7 +139,7 @@ class SNPFilter:
           res:  a frame containing the filtered data
           summary:  a data frame with size, length, and location of each block
         '''
-        logging.info(f'Filtering {len(df)} SNPs')
+        logging.info(f'SNPFilter.apply {len(df)} SNPs')
         df = df[df.chrom_id.map(lambda s: bool(re.match(self._chromosome,s)))]
         logging.info(f'  chromosome:  {len(df)} match {self._chromosome}')
 
@@ -201,6 +201,7 @@ class NCOFilter:
 
         for attr in filter_params:
             if val := args.get(attr):
+                logging.debug(f'{attr} {val}')
                 setattr(self, attr, val)
 
     def __repr__(self):
@@ -253,7 +254,7 @@ class NCOFilter:
 
     def apply(self, df):
         '''
-        Apply the NCO filtering criteria to a set of filtered blocks SNPs.
+        Apply the NCO filtering criteria to a set of SNPs in filtered blocks SNPs.
 
         Arguments:
           df:  a data frame of filtered SNPs
@@ -261,61 +262,75 @@ class NCOFilter:
         Returns:
           res:  a frame containing the filtered data
         '''
-        logging.info(f'Filtering {len(df)} SNPs')
+        logging.info(f'NCOFilter.appy {len(df)} SNPs')
 
         res = []
         for name, block in df.groupby(['chrom_id','blk_id']):
-            nco = self._scan(block)
-            if nco is not None:
-                logging.debug(f'{name} block with {len(nco)} rows')
-                res.append(nco)
+            logging.debug(f'{name} {len(block)} SNPs')
+            block['nco'] = self._scan(block)
+            res.append(block)
 
         self._result = pd.concat(res)
         return self._result
-        
+
 
     def _scan(self, block):
         '''
         Scan a block for runs that have satisfy homozygosity requirements
-        and have a minimum number of SNPs.
+        and have a minimum number of SNPs.  Add a column to a block to
+        show which SNPs might be part of an NCO.
         '''
 
         def next_interval():
             nonlocal i, j
             j = i
-            while j < len(p):
-                # logging.debug(f'{i} {j} {p.iloc[j]}')
-                if np.isnan(p.iloc[j]):
-                    if j - i >= self.size:
-                        break
-                    i = j+1
-                j += 1
-            return j - i >= self.size
+            logging.debug(f'next_interval {i} {j}')
+            while (j < len(p)):
+                logging.debug(f'{i} {j} {p.iloc[j]}')
+                if p.iloc[j]:
+                    logging.debug(f'extend {j}')
+                    j += 1
+                elif j - i >= self.size:
+                    logging.debug(f'long enough {i} {j}')
+                    break
+                else:
+                    logging.debug(f'restart')
+                    j += 1
+                    i = j
+            logging.debug(f'exit {i} {j} {self.size}')
         
-        res = []
+        # block['nco'] = 0
+        col = np.zeros(len(block), dtype=np.int8)
 
         z = block.homozygosity
         if block.iloc[0].background == 'CB4856':
             rr = block.ref_reads
-            p = z.where((z >= self.min_z) & (rr >= self.min_cover))
+            p = (z >= self.min_z) & (rr >= self.min_cover)
         else:
             rr = block.ref_reads
             vr = block.var_reads
-            p = z.where((abs(z - 0.5) <= self.delta_z) & (rr >= self.min_cover) & (vr >= self.min_cover))
+            p = (abs(z - 0.5) <= self.delta_z) & (rr >= self.min_cover) & (vr >= self.min_cover)
 
+        col[p] = 1
+        
+        res = []
         i = j = 0
-        while next_interval():
-            nco = block.iloc[i:j]
-            res.append(nco)
-            i = j+1
+        while i < len(block):
+            next_interval()
+            if (j - i) >= self.size:
+                res.append((i,j))
+            i = j + 1
+            if len(res) > 3:
+                break
+        logging.debug(f'res {res}')
 
         if res:
-            res.sort(key=lambda b: len(b))
-            nco = res[-1]
-        else:
-            nco = None
+            res.sort(key=lambda p: p[1]-p[0])
+            i, j = res[-1]
+            logging.debug(f'nco: {i}..{j}')
+            col[i:j] = 2
 
-        return nco
+        return col
 
     def print_summary(self):
         ncos = self._result.groupby(['chrom_id','blk_id'])

@@ -461,6 +461,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         if chr_id in self.peaks.groups:
             df = self.peaks.get_group(chr_id)
             res, self.summary = self.snp_filter.apply(df)
+            if self.nco_switch.value:
+                print(res.head())
+                nco, p = self.nco_filter.apply(res)
+                res['nco'] = ' '
+                res.loc[p,'nco'] = '✓'
             self.blocks = res.groupby('blk_id')
             grid = self._make_grid()
             graphic.append(grid)
@@ -501,8 +506,6 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             c = pcolor.get(r.hmm_state) or 'lightgray'
             res.append(Rectangle((r.start,500000), r.length, 1000000, color=c))
         if chr_id in self.peaks.groups:
-            print('patches for', chr_id)
-            print(self.summary.head())
             for blk_index, _ in self.summary.iterrows():
                 _, blk_id = blk_index
                 block = self.blocks.get_group(blk_id)
@@ -554,7 +557,10 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             plt.close(fig)
             self.block_buttons[blk_id] = pn.widgets.Button(name='>', align='center', tags=[blk_id])
             self.block_buttons[blk_id].on_click(self.toggle_text_cb)
-            df = block[['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads','background','homozygosity']]
+            cols = ['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads','background','homozygosity']
+            if self.nco_switch.value:
+                cols.append('nco')
+            df = block[cols]
             self.block_text[blk_id] = pn.pane.DataFrame(df, visible=False)
             g.append(pn.Row(
                 self.block_buttons[blk_id],
