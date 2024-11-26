@@ -218,7 +218,7 @@ class NCOSizeFilterWidget(pn.widgets.TextInput):
         Callback activated when the text changes.  Saves the new
         value in the filter object.
         '''
-        self.filter.length = int(self.value)
+        self.filter.size = int(self.value)
 
 
 class NCOCoverFilterWidget(pn.widgets.TextInput):
@@ -245,7 +245,7 @@ class NCOCoverFilterWidget(pn.widgets.TextInput):
         Callback activated when the text changes.  Saves the new
         value in the filter object.
         '''
-        self.min_cover = int(self.value)
+        self.filter.min_cover = int(self.value)
 
 
 class FilterBox(pn.Column):
@@ -338,6 +338,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         self.back_button = pn.widgets.Button(name='◀︎', stylesheets=[button_style_sheet])
         self.forward_button = pn.widgets.Button(name='▶︎', stylesheets=[button_style_sheet])
         self.chromosome_id = pn.widgets.TextInput(name="", value="")
+        self.open_blocks = set()
 
         # self.chromosome_pattern = pn.widgets.TextInput(name="Chromosomes", value="BSP.*")
         # self.size_graph_button = pn.widgets.Button(name='Block Size', stylesheets=[button_style_sheet])
@@ -375,6 +376,9 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         the widgets are activated.
         '''
         for w in self.block_widgets.widgets():
+            w.param.watch(self.filter_cb, ['value'])
+
+        for w in self.nco_widgets.widgets():
             w.param.watch(self.filter_cb, ['value'])
 
         for w in [self.back_button, self.forward_button]:
@@ -462,11 +466,12 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             df = self.peaks.get_group(chr_id)
             res, self.summary = self.snp_filter.apply(df)
             if self.nco_switch.value:
-                print(res.head())
-                nco, p = self.nco_filter.apply(res)
-                res['nco'] = ' '
-                res.loc[p,'nco'] = '✓'
-            self.blocks = res.groupby('blk_id')
+                res = self.nco_filter.apply(res)
+                self.blocks = res.groupby('blk_id')
+                self.nco_blocks = { n for n, grp in self.blocks if grp.nco.max() == 2 }
+            else:
+                self.blocks = res.groupby('blk_id')
+                self.nco_blocks = set()
             grid = self._make_grid()
             graphic.append(grid)
 
@@ -511,6 +516,8 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
                 block = self.blocks.get_group(blk_id)
                 x0 = block.iloc[0].position
                 res.append(Circle((x0,750000), 50000, color='black'))
+                if blk_id in self.nco_blocks:
+                    res.append(Circle((x0,1200000), 50000, color='yellow'))
         return res
 
     def _make_grid(self):
@@ -529,6 +536,11 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             'uN2': 'lightpink',
             'unknown': 'lightgray',
             'het': 'palegoldenrod',
+        }
+        nco_sym = {
+            0: ' ',
+            1: '✓',
+            2: '★',
         }
         self.block_buttons = {}
         self.block_text = {}
@@ -558,10 +570,14 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
             self.block_buttons[blk_id] = pn.widgets.Button(name='>', align='center', tags=[blk_id])
             self.block_buttons[blk_id].on_click(self.toggle_text_cb)
             cols = ['position','base_geno','hmm_state1','reference','ref_reads','variant','var_reads','background','homozygosity']
-            if self.nco_switch.value:
-                cols.append('nco')
             df = block[cols]
+            if self.nco_switch.value:
+                # df['nco'] = block.nco.map(lambda n: nco_sym[n])
+                df = pd.concat([df, block.nco.map(lambda n: nco_sym[n])], axis=1)
             self.block_text[blk_id] = pn.pane.DataFrame(df, visible=False)
+            if blk_id in self.open_blocks:
+                self.block_text[blk_id].visible = True
+                self.block_buttons[blk_id].name = '∨'
             g.append(pn.Row(
                 self.block_buttons[blk_id],
                 pn.pane.Matplotlib(fig, dpi=72, tight=True),
@@ -578,7 +594,12 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         '''
         i = e.obj.tags[0]
         self.block_text[i].visible = not self.block_text[i].visible
-        self.block_buttons[i].name = '∨' if self.block_text[i].visible else '>'
+        if self.block_text[i].visible:
+            self.block_buttons[i].name = '∨'
+            self.open_blocks.add(i)
+        else:
+            self.block_buttons[i].name = '>'
+            self.open_blocks.remove(i)
 
     def filter_cb(self, e):
         '''
@@ -593,6 +614,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         Callback function invoked when the 'Find NCOs' switch is toggled
         ''' 
         self.nco_widgets.visible = not self.nco_widgets.visible
+        self.display_chromosome()
 
     def change_chromosome_cb(self, e):
         '''
@@ -602,6 +624,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         delta = 1 if e.obj is self.forward_button else -1
         self.chr_index = (self.chr_index + delta) % len(self.clist)
         self.chromosome_id.value = self.clist[self.chr_index]
+        self.open_blocks = set()
 
     def chromosome_edited_cb(self, e):
         '''
@@ -613,6 +636,7 @@ class PeakViewerApp(pn.template.BootstrapTemplate):
         if idx is not None:
             self.chr_index = idx
             self.chromosome_id.value = self.clist[idx]
+            self.open_blocks = set()
             self.display_chromosome()
 
     # histogram_params = {
