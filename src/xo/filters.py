@@ -163,6 +163,7 @@ class SNPFilter:
             axis=1
         )
 
+
         min_size = sf.blk_size >= self._min_size
         max_size = sf.blk_size <= self._max_size
         min_len = sf.blk_len >= self._min_length
@@ -171,7 +172,10 @@ class SNPFilter:
         sf = sf[min_size & max_size & min_len & max_len]
         logging.info(f'Summary has {sf.blk_size.sum()} SNPs in {len(sf)} blocks')
 
-        res = pd.concat(groups.get_group(n) for n in sf.index)
+        if len(sf) > 0:
+            res = pd.concat(groups.get_group(n) for n in sf.index)
+        else:
+            res = pd.DataFrame(columns=df.columns)
 
         return res, sf
 
@@ -270,7 +274,11 @@ class NCOFilter:
             block['nco'] = self._scan(block)
             res.append(block)
 
-        self._result = pd.concat(res)
+        if len(res) > 0:
+           self._result = pd.concat(res)
+        else:
+            self._result = pd.DataFrame(columns=df.columns)
+            
         return self._result
 
 
