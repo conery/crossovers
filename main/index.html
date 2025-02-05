@@ -33,7 +33,10 @@
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
           <a href=".." class="icon icon-home"> Crossover Explorer
-        </a><div role="search">
+        </a>
+        <div class="version">
+          Version 0.5.1
+        </div><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
@@ -48,11 +51,15 @@
               </ul>
               <p class="caption"><span class="caption-text">Running the Applications</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Peak Finder</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/">Command Line API</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Find Peaks (xo peaks)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs (xo gui)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../filter/">Filter Blocks (xo filter)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../post/">Identify NCOs (xo post)</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Developer</span></p>
@@ -90,8 +97,6 @@
                 <li class="toctree-l3"><a class="reference internal" href="../start_app/">Creating and Starting the GUI</a>
                 </li>
     </ul>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../vis_module/">vis</a>
                 </li>
     </ul>
                   </li>
@@ -171,99 +176,113 @@ are all imported from other modules.</p>
 </table>
             <details class="quote">
               <summary>Source code in <code>src/xo/xo.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">init_cli</span><span class="p">():</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">init_cli</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use argparse to create the command line API.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a Namespace object with values of the command line arguments. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">snps_default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;XO_SNPS&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;BSP_TIGER.marker_dataframe.pickle.gzip&#39;</span>
-    <span class="n">intervals_default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;XO_INTERVALS&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;BSP_TIGER.intervals_dataframe.pickle.gzip&#39;</span>
-    <span class="n">peaks_default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;XO_PEAKS&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;peaks.csv&#39;</span>
-    <span class="n">save_default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;XO_SAVE&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;summary.csv&#39;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span>
         <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;subcommands&#39;</span><span class="p">,</span>
-        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;operation to perform&#39;</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;operation to perform&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;cmnd&#39;</span>
     <span class="p">)</span>
 
-    <span class="n">peak_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;peaks&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;find peaks in the SNP data&#39;</span><span class="p">)</span>
-    <span class="n">peak_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--snps&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">snps_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input (IGER marker) file&#39;</span><span class="p">)</span>
-    <span class="n">peak_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">peaks_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;output file&#39;</span><span class="p">)</span>
-    <span class="n">peak_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--max_snps&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;max number of SNPs in a block&quot;</span><span class="p">)</span>
-    <span class="n">peak_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">peak_finder</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--log&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;quiet&#39;</span><span class="p">,</span><span class="s1">&#39;info&#39;</span><span class="p">,</span><span class="s1">&#39;debug&#39;</span><span class="p">])</span>
 
-    <span class="n">gui_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;gui&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;explore blocks of SNPs&#39;</span><span class="p">)</span>
-    <span class="n">gui_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--intervals&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">intervals_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;SNP summaries&#39;</span><span class="p">)</span>
-    <span class="n">gui_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--peaks&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">peaks_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;blocks saved by peaks.py&#39;</span><span class="p">)</span>
+    <span class="n">gui_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;gui&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;explore blocks and NCOs&#39;</span><span class="p">)</span>
+    <span class="n">gui_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--peaks&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">peaks_output_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;blocks saved by peaks.py&#39;</span><span class="p">)</span>
+    <span class="c1"># gui_parser.add_argument(&#39;--filtered&#39;, metavar=&#39;F&#39;, default=c.filter_output_default, help=&#39;filtered blocks&#39;)</span>
+    <span class="c1"># gui_parser.add_argument(&#39;--ncos&#39;, metavar=&#39;F&#39;, default=c.post_output_default, help=&#39;NCOs&#39;)</span>
     <span class="n">gui_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--port&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5006</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;local port for the Panel server&#39;</span><span class="p">)</span>
     <span class="n">gui_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">start_app</span><span class="p">)</span>
 
-    <span class="n">vis_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;vis&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;visualizations based on filtered blocks&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;command&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">plot_commands</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;type of plot to make </span><span class="si">{</span><span class="n">plot_commands</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--peaks&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">peaks_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;blocks saved by peaks.py&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--chromosomes&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;BSP.*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;chromosome name pattern&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--size&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;block size range (#SNPs)&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--length&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;block length range (bp)&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--coverage&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;minimum coverage&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--match&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;require genome match&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--save&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">save_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;write summary dataframe to this file&#39;</span><span class="p">)</span>
-    <span class="n">vis_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">visualize</span><span class="p">)</span>
+    <span class="n">peak_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;peaks&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;find blocks around peaks in the SNP data&#39;</span><span class="p">)</span>
+    <span class="n">peak_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--snps&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">snps_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input (TIGER marker) file&#39;</span><span class="p">)</span>
+    <span class="n">peak_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--crossovers&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">crossovers_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;file with crossover locations&#39;</span><span class="p">)</span>
+    <span class="n">peak_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">peaks_output_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;output file&#39;</span><span class="p">)</span>
+    <span class="n">peak_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--max_snps&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">peaks_max_snps</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;max number of SNPs in a block&quot;</span><span class="p">)</span>
+    <span class="n">peak_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">peak_finder</span><span class="p">)</span>
+
+    <span class="n">filter_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;apply filters to blocks&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--peaks&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">peaks_output_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;blocks saved by peaks.py&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">filter_output_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;output file&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--crossovers&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">crossovers_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;file with crossover locations&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--chromosomes&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">filter_chromosome_pattern</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;chromosome name pattern&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--size&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">filter_block_size</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;block size range (#SNPs)&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--length&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">filter_block_length</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;block length range (bp)&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--coverage&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">filter_coverage</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;minimum coverage&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--match&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;require genome match&#39;</span><span class="p">)</span>
+    <span class="n">filter_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">filter_blocks</span><span class="p">)</span>
 
     <span class="n">post_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;postprocessing of filtered blocks&#39;</span><span class="p">)</span>
-    <span class="n">post_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--peaks&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">peaks_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;blocks saved by peaks.py&#39;</span><span class="p">)</span>
-    <span class="n">post_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">post</span><span class="p">)</span>
+    <span class="n">post_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--blocks&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">filter_output_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;file with filtered blocks&#39;</span><span class="p">)</span>
+    <span class="n">post_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">post_output_default</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;output file&#39;</span><span class="p">)</span>
+    <span class="n">post_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--min_z&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">post_min_z</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;homozygosity for Type A blocks&#39;</span><span class="p">)</span>
+    <span class="n">post_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--delta_z&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">post_delta_z</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;homozygosity for Type B blocks&#39;</span><span class="p">)</span>
+    <span class="n">post_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--min_cover&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">post_min_cover</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;minimum number of reads of each type&#39;</span><span class="p">)</span>
+    <span class="n">post_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--size&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">post_block_size</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;minimum block size (bp)&#39;</span><span class="p">)</span>
+    <span class="n">post_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">postprocess</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
@@ -289,21 +308,27 @@ we need to do here is call that function.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/xo/xo.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The argument parser associates a function with each script name, all</span>
 <span class="sd">    we need to do here is call that function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">init_cli</span><span class="p">()</span>
     <span class="n">setup_logging</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

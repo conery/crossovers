@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Generate Plots from the Command Line - Crossover Explorer</title>
+    <title>Command Line API - Crossover Explorer</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -14,8 +14,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Generate Plots from the Command Line";
-        var mkdocs_page_input_path = "vis.md";
+        var mkdocs_page_name = "Command Line API";
+        var mkdocs_page_input_path = "api.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -50,8 +50,18 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Running the Applications</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../api/">Command Line API</a>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Command Line API</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#help">Help</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#abbreviating-options">Abbreviating Options</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../peaks/">Find Peaks (xo peaks)</a>
                   </li>
@@ -109,7 +119,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Generate Plots from the Command Line</li>
+          <li class="breadcrumb-item">Running the Applications</li>
+      <li class="breadcrumb-item active">Command Line API</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -118,96 +129,48 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="generate-plots-from-the-command-line">Generate Plots from the Command Line</h1>
-<p>The <code>xo vis</code> command is an alternate method for generating the histograms that summarize blocks across all the chromosomes.</p>
-<h2 id="command-line-options">Command Line Options</h2>
-<p>The command that runs the program has options to specify settings for each of the filters.  To see the complete list of options use the <code>--help</code> option:</p>
-<pre><code class="language-bash">$ xo vis --help
-usage: xo vis [-h] [--peaks F] [--chromosomes P] [--size N N] 
-       [--length N N] [--coverage N] [--match] [--save F] P
-
-positional arguments:
-  P                type of plot to make ['count', 'length', 'location']
+                <h1 id="command-line-api">Command Line API</h1>
+<p>The GUI and the filtering steps are all implemented as part of a command line application named <code>xo</code>.
+To run one of the steps simply type <code>xo</code> followed by the name of the operation you want to perform (<code>peaks</code>, <code>gui</code>, <code>filter</code>, or <code>post</code>).
+Each of the scripts has its own help message, which you can see by adding <code>--help</code> to the command.</p>
+<h2 id="help">Help</h2>
+<p>This command prints the help message for the top level <code>xo</code> application:</p>
+<pre><code class="language-bash">$ xo --help
+usage: xo [-h] [--log X] {gui,peaks,filter,post} ...
 
 options:
-  -h, --help       show this help message and exit
-  --peaks F        blocks saved by peaks.py
-  --chromosomes P  chromosome name pattern
-  --size N N       block size range (#SNPs)
-  --length N N     block length range (bp)
-  --coverage N     minimum coverage
-  --match          require genome match
-  --save F         write summary dataframe to this file
+  -h, --help            show this help message and exit
+  --log X
+
+subcommands:
+  operation to perform
+
+  {gui,peaks,filter,post}
+    gui                 explore blocks and NCOs
+    peaks               find blocks around peaks in the SNP data
+    filter              apply filters to blocks
+    post                postprocessing of filtered blocks
 </code></pre>
-<p>According to this output, each time we run the program we have to specify a value for <code>P</code>, which stands for "plot type."  The possible values are <code>count</code>, <code>length</code>, and <code>location</code>, which correspond to the three kinds of histograms.</p>
-<p>Five of the options correspond to the filter widgets and chromosome name widget displayed in the GUI:</p>
-<ul>
-<li>Use <code>--chromosomes</code> to specify a chromosome name pattern. If you plan to use this option read the section below on "name patterns in shell commands."  </li>
-<li>Use <code>--size</code> and <code>--length</code> to specify block size and length limits.  Note that both of these options require two integer arguments, corresponding to the settings of the double-ended slider in the GUI. </li>
-<li>The <code>--coverage</code> option takes a single integer argument, which corresponds to the value of the coverage slider in the GUI.</li>
-<li>Including <code>--match</code> on the command line is the same as clicking the toggle button in the match widget.</li>
-</ul>
-<p>The remaining two options are for specifying file names.</p>
-<ul>
-<li>The <code>--peaks</code> option can be used to specify an alternative to the default <code>peaks.csv</code> file with the output from the <code>peaks</code> command.</li>
-<li>Use <code>--save</code> to have the application write the size and location of each block to a CSV file.</li>
-</ul>
-<h3 id="default-filter-settings">Default Filter Settings</h3>
-<p>If a filter option is not specified on the command line the default value will be used.  Each default is the same as the values shown in the GUI when it first starts.</p>
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>chromosome</code></td>
-<td>regular expression for chromosome names</td>
-<td><code>BSP.*</code></td>
-</tr>
-<tr>
-<td><code>size</code></td>
-<td>block size (number of SNPs)</td>
-<td>0 to 10</td>
-</tr>
-<tr>
-<td><code>length</code></td>
-<td>block length (base pairs)</td>
-<td>0 1o 10000</td>
-</tr>
-<tr>
-<td><code>coverage</code></td>
-<td>minimum SNP coverage</td>
-<td>0</td>
-</tr>
-<tr>
-<td><code>match</code></td>
-<td>require genome match</td>
-<td>False (unchecked)</td>
-</tr>
-</tbody>
-</table>
-<p>The default is <code>BSP.*</code>, meaning "all chromosomes."</p>
-<p>If these options are not specified the defaults are the same as the initial settings shown in the GUI:  0 to 10 for block size, and 0 to 10,000 for block length.</p>
-<h3 id="name-patterns-in-shell-commands">Name Patterns in Shell Commands</h3>
-<p>The argument for the <code>--chromosome</code> option is a regular expression, and these expressions often contain asterisks.  For example, the pattern <code>BSP-.*-1</code> means "all names that start with <code>BSP-</code> and end with <code>-1</code> with any characters in between", in other words, "chromosome 1 from all worms."</p>
-<p>We need to be careful when we use this pattern in a shell command.  When a shell sees an asterisk, it thinks you are typing the name of a file, and it tries to look for all files with names that match the pattern.</p>
-<p>To prevent this behavior, we have to <strong>enclose the pattern in single quotes</strong>.  This is how we would create a histogram of block sizes using only chromosome 1 from each worm:</p>
-<pre><code class="language-bash">$ xo vis count --chromosomes 'BSP-.*-1'
+<p>To see the help message for one of the scripts type <code>xo</code>, the script name, and then <code>--help</code>.  This shell command prints the help message for the <code>peaks</code> script:</p>
+<pre><code class="language-bash">$ xo peaks --help
+usage: xo peaks [-h] [--snps F] [--output F] [--max_snps N]
+...
 </code></pre>
-<blockquote>
-<p><strong>Note:</strong>  File name expansion -- called "globbing" in the Unix world -- is done by the shell.  The shell tries to look for files with matching names before it even starts the <code>xo</code> command.  If you leave out the quotes you're likely to see an error message like this:</p>
-<p><code>zsh: no matches found: BSP-.*-1</code></p>
-<p>Notice how this error is coming from the shell (<code>zsh</code> in this case, the default shell on macOS) and not from the <code>xo</code> program, which is never even started.</p>
-</blockquote>
-<h3 id="examples">Examples</h3>
-<p>For other examples of chromosome name patterns see the Chromosome Names section of the GUI documentation.</p>
+<h2 id="abbreviating-options">Abbreviating Options</h2>
+<p>The <code>xo</code> scripts, like most modern Unix command line applications, allow users to shorten option names, so that it is only necessary to type enough characters to distinguish one option from another.</p>
+<p>The full script name (<code>peaks</code>, <code>gui</code>, or <code>vis</code>) must be entered completely, but after that any option names can be abbreviated.</p>
+<h3 id="example">Example</h3>
+<p>These two commands are equivalent:</p>
+<pre><code class="language-bash">$ xo peaks --output short_blocks.csv --max_snps 10
+$ xo peaks --out short_blocks.csv --m 10
+</code></pre>
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../peaks/" class="btn btn-neutral float-right" title="Find Peaks (xo peaks)">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -229,6 +192,10 @@ options:
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../peaks/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

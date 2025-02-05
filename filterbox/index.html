@@ -33,7 +33,10 @@
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
           <a href=".." class="icon icon-home"> Crossover Explorer
-        </a><div role="search">
+        </a>
+        <div class="version">
+          Version 0.5.1
+        </div><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
@@ -48,11 +51,15 @@
               </ul>
               <p class="caption"><span class="caption-text">Running the Applications</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Peak Finder</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/">Command Line API</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Find Peaks (xo peaks)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs (xo gui)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../filter/">Filter Blocks (xo filter)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../post/">Identify NCOs (xo post)</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Developer</span></p>
@@ -96,8 +103,6 @@
                 <li class="toctree-l3"><a class="reference internal" href="../start_app/">Creating and Starting the GUI</a>
                 </li>
     </ul>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../vis_module/">vis</a>
                 </li>
     </ul>
                   </li>
@@ -159,7 +164,7 @@ It provides a way to collect all the filter widgets in a single location and pro
               Bases: <code><span title="panel.Column">Column</span></code></p>
 
 
-        <p>A FilterBox is a column layout that has a label and an instance
+        <p>A FilterBox is a column layout that has labels and an instance
 of each of the filter widgets.</p>
 
         <p>in the order they will be displayed.</p>
@@ -190,25 +195,23 @@ of each of the filter widgets.</p>
 </table>
                   <details class="quote">
                     <summary>Source code in <code>src/xo/gui.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snp_filter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    The `__init__` method instantiates the widgets that will</span>
 <span class="sd">    filter SNPs and puts them in the Column</span>
@@ -219,14 +222,12 @@ of each of the filter widgets.</p>
 <span class="sd">          the constructors for each filter widget)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">FilterBox</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_widgets</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">BlockSizeFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> 
-        <span class="n">BlockLengthFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> 
-        <span class="n">CoverageFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> 
-        <span class="n">SupportFilterWidget</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-    <span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">HTML</span><span class="p">(</span><span class="s2">&quot;&lt;h3&gt;Filters&lt;/h3&gt;&quot;</span><span class="p">))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_widgets</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_widgets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="p">[</span><span class="n">BlockSizeFilterWidget</span><span class="p">,</span> <span class="n">BlockLengthFilterWidget</span><span class="p">,</span> <span class="n">CoverageFilterWidget</span><span class="p">,</span> <span class="n">SupportFilterWidget</span><span class="p">]:</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">snp_filter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -257,11 +258,11 @@ of each of the filter widgets.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/xo/gui.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return a list of filter widgets.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -296,10 +297,7 @@ filter based on the count of the number of SNPs in a block.</p>
 
                   <details class="quote">
                     <summary>Source code in <code>src/xo/gui.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span>
@@ -308,15 +306,20 @@ filter based on the count of the number of SNPs in a block.</p>
 <span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span>
-<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Arguments:</span>
 <span class="sd">      f:  the SNPFilter object that will do the filtering.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">BlockSizeFilterWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Block Size (#SNPs)&#39;</span><span class="p">,</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_block_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_block_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
@@ -352,12 +355,12 @@ slider settings in the filter object.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/xo/gui.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Callback activated when the slider changes.  Saves the new</span>
 <span class="sd">    slider settings in the filter object.</span>
@@ -394,11 +397,7 @@ of bases between the first and last SNP.</p>
 
                   <details class="quote">
                     <summary>Source code in <code>src/xo/gui.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
@@ -407,16 +406,22 @@ of bases between the first and last SNP.</p>
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Arguments:</span>
 <span class="sd">      f:  the SNPFilter object that will do the filtering.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">BlockLengthFilterWidget</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Block Length (bp)&#39;</span><span class="p">,</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-        <span class="n">step</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_block_length</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_block_length</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>     
@@ -452,12 +457,12 @@ slider settings in the filter object.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/xo/gui.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Callback activated when the slider changes.  Saves the new</span>
 <span class="sd">    slider settings in the filter object.</span>
@@ -492,19 +497,19 @@ slider settings in the filter object.</p>
 
                   <details class="quote">
                     <summary>Source code in <code>src/xo/gui.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
-<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Arguments:</span>
 <span class="sd">      f:  the filter object with the method that does the filtering</span>
@@ -548,12 +553,12 @@ slider settings in the filter object.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/xo/gui.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Callback activated when the slider changes.  Saves the new</span>
 <span class="sd">    slider settings in the filter object.</span>
@@ -589,16 +594,16 @@ column matches the HMM state column.</p>
 
                   <details class="quote">
                     <summary>Source code in <code>src/xo/gui.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
-<span class="normal">129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Arguments:</span>
 <span class="sd">      f:  the filter object with the method that does the filtering</span>
@@ -639,12 +644,12 @@ slider settings in the filter object.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/xo/gui.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Callback activated when the slider changes.  Saves the new</span>
 <span class="sd">    slider settings in the filter object.</span>

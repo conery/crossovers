@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Peak Finder - Crossover Explorer</title>
+    <title>Find Peaks (xo peaks) - Crossover Explorer</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -14,7 +14,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Peak Finder";
+        var mkdocs_page_name = "Find Peaks (xo peaks)";
         var mkdocs_page_input_path = "peaks.md";
         var mkdocs_page_url = null;
       </script>
@@ -33,7 +33,10 @@
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
           <a href=".." class="icon icon-home"> Crossover Explorer
-        </a><div role="search">
+        </a>
+        <div class="version">
+          Version 0.5.1
+        </div><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
@@ -48,7 +51,9 @@
               </ul>
               <p class="caption"><span class="caption-text">Running the Applications</span></p>
               <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Peak Finder</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/">Command Line API</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Find Peaks (xo peaks)</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#searching-for-blocks-of-snps">Searching for Blocks of SNPs</a>
         <ul>
@@ -68,9 +73,11 @@
     </li>
     </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs (xo gui)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../filter/">Filter Blocks (xo filter)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../post/">Identify NCOs (xo post)</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Developer</span></p>
@@ -103,8 +110,6 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../vis_module/">vis</a>
-                </li>
     </ul>
                   </li>
               </ul>
@@ -123,7 +128,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Running the Applications</li>
-      <li class="breadcrumb-item active">Peak Finder</li>
+      <li class="breadcrumb-item active">Find Peaks (xo peaks)</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -132,7 +137,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="peak-finder">Peak Finder</h1>
+                <h1 id="find-peaks-xo-peaks">Find Peaks (<code>xo peaks</code>)</h1>
 <p>This script scans a chromosome to look for sequences of SNPs that are potentially associated with crossover or non-crossover events.</p>
 <h2 id="searching-for-blocks-of-snps">Searching for Blocks of SNPs</h2>
 <p>The name "peak finder" comes from the method we use to look for these events.  We define a <strong>signal function</strong> that is based on counting the number of SNPs.  At any location in the chromosome, let <em>f</em> be the total number of CB4856 SNPs seen up to that point, and let <em>g</em> be the total number of N2 SNPs seen to that point.  Then our signal function is simply <em>f</em> − <em>g</em>.  As we move across the chromosome, the signal goes up whenever we encounter a CB4856 SNP and goes down whenever we see an N2 SNP.</p>
@@ -166,8 +171,8 @@
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href=".." class="btn btn-neutral float-left" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../gui/" class="btn btn-neutral float-right" title="View SNPs in the GUI">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../api/" class="btn btn-neutral float-left" title="Command Line API"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gui/" class="btn btn-neutral float-right" title="View SNPs (xo gui)">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -190,7 +195,7 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../api/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../gui/" style="color: #fcfcfc">Next &raquo;</a></span>

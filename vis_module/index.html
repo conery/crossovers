@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>vis - Crossover Explorer</title>
+    <title>vis.py - Crossover Explorer</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -14,7 +14,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "vis";
+        var mkdocs_page_name = "vis.py";
         var mkdocs_page_input_path = "vis_module.md";
         var mkdocs_page_url = null;
       </script>
@@ -33,7 +33,10 @@
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
           <a href=".." class="icon icon-home"> Crossover Explorer
-        </a><div role="search">
+        </a>
+        <div class="version">
+          Version 0.5.1
+        </div><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
@@ -48,19 +51,23 @@
               </ul>
               <p class="caption"><span class="caption-text">Running the Applications</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Peak Finder</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/">Command Line API</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Find Peaks (xo peaks)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs (xo gui)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../filter/">Filter Blocks (xo filter)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../post/">Identify NCOs (xo post)</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Developer</span></p>
-              <ul class="current">
+              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../modules/">Source Directory</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" >Modules</a>
-    <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Modules</a>
+    <ul>
                 <li class="toctree-l2"><a class="reference internal" href="../main/">xo</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../filters/">filters</a>
@@ -85,20 +92,6 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">vis</a>
-    <ul class="current">
-    <li class="toctree-l3"><a class="reference internal" href="#src.xo.vis.set_params">set_params</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#src.xo.vis.count_histogram">count_histogram</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#src.xo.vis.length_histogram">length_histogram</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#src.xo.vis.location_histogram">location_histogram</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#src.xo.vis.visualize">visualize</a>
-    </li>
-    </ul>
-                </li>
     </ul>
                   </li>
               </ul>
@@ -116,9 +109,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Developer</li>
-          <li class="breadcrumb-item">Modules</li>
-      <li class="breadcrumb-item active">vis</li>
+      <li class="breadcrumb-item active">vis.py</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -599,9 +590,6 @@ SNP data, generates a histogram.</p>
               
             </div>
           </div><footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../start_app/" class="btn btn-neutral float-left" title="Creating and Starting the GUI"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-    </div>
 
   <hr/>
 
@@ -622,8 +610,6 @@ SNP data, generates a histogram.</p>
   <div class="rst-versions" role="note" aria-label="Versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
     
-    
-      <span><a href="../start_app/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
   </span>

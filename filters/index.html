@@ -33,7 +33,10 @@
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
           <a href=".." class="icon icon-home"> Crossover Explorer
-        </a><div role="search">
+        </a>
+        <div class="version">
+          Version 0.5.1
+        </div><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
@@ -48,11 +51,15 @@
               </ul>
               <p class="caption"><span class="caption-text">Running the Applications</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Peak Finder</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../api/">Command Line API</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs in the GUI</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../peaks/">Find Peaks (xo peaks)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../vis/">Generate Plots from the Command Line</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../gui/">View SNPs (xo gui)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../filter/">Filter Blocks (xo filter)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../post/">Identify NCOs (xo post)</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Developer</span></p>
@@ -77,11 +84,29 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.SNPFilter.coverage">coverage</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.SNPFilter.load_data">load_data</a>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.SNPFilter.result">result</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.SNPFilter.has_chromosome_block">has_chromosome_block</a>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.SNPFilter.summary">summary</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.SNPFilter.apply">apply</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#src.xo.filters.NCOFilter">NCOFilter</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.NCOFilter.min_z">min_z</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.NCOFilter.delta_z">delta_z</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.NCOFilter.min_cover">min_cover</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.NCOFilter.size">size</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.NCOFilter.result">result</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.NCOFilter.apply">apply</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#src.xo.filters.NCOFilter._scan">_scan</a>
     </li>
         </ul>
     </li>
@@ -106,8 +131,6 @@
                 <li class="toctree-l3"><a class="reference internal" href="../start_app/">Creating and Starting the GUI</a>
                 </li>
     </ul>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../vis_module/">vis</a>
                 </li>
     </ul>
                   </li>
@@ -171,7 +194,7 @@ The general workflow is:</p>
 
 
 <h3 id="src.xo.filters.SNPFilter" class="doc doc-heading">
-              <code class="highlight language-python"><span class="n">SNPFilter</span><span class="p">()</span></code>
+              <code class="highlight language-python"><span class="n">SNPFilter</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></code>
 
 </h3>
 
@@ -179,10 +202,9 @@ The general workflow is:</p>
     <div class="doc doc-contents ">
 
 
-        <p>A SNPFilter object is the main interface to the SNP data.  After creating the object
-call the <code>load_data</code> method to read a data frame with SNP calls produced by TIGER.
-Set filtering parameters (block length, <em>etc</em>), then call the <code>filter</code> method to 
-apply all the filters.</p>
+        <p>A SNPFilter applies filtering criteria to SNPs in blocks identified by the
+peak finder. Pass the constructor a dictionary that has settings filtering 
+critera. Call a method named <code>apply</code> to filter a data set.</p>
 
 
 <table class="field-list">
@@ -195,13 +217,6 @@ apply all the filters.</p>
       <th class="field-name">Attributes:</th>
       <td class="field-body">
         <ul class="first simple">
-            <li>
-              <b><code>snps</code></b>
-              –
-              <div class="doc-md-description">
-                <p>the input data frame</p>
-              </div>
-            </li>
             <li>
               <b><code>chromosome</code></b>
               –
@@ -244,7 +259,8 @@ apply all the filters.</p>
 </table>
                   <details class="quote">
                     <summary>Source code in <code>src/xo/filters.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
+<span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
@@ -253,16 +269,35 @@ apply all the filters.</p>
 <span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_chromosome</span> <span class="o">=</span> <span class="s1">&#39;BSP.*&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_min_size</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_max_size</span> <span class="o">=</span> <span class="mi">100</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_min_length</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_max_length</span> <span class="o">=</span> <span class="mi">10000</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_chromosome</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_chromosome_pattern</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_min_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_size</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_block_size</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_min_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_length</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_block_length</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">filter_coverage</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_matched</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_summary</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">filter_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;chromosomes&#39;</span><span class="p">:</span>  <span class="s1">&#39;chromosome&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;size&#39;</span><span class="p">:</span>         <span class="s1">&#39;size_range&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;length&#39;</span><span class="p">:</span>       <span class="s1">&#39;length_range&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;coverage&#39;</span><span class="p">:</span>     <span class="s1">&#39;coverage&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;match&#39;</span><span class="p">:</span>        <span class="s1">&#39;matched&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">filter_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">:=</span> <span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -386,155 +421,64 @@ apply all the filters.</p>
 
 </div>
 
+<div class="doc doc-object doc-attribute">
 
 
-<div class="doc doc-object doc-function">
 
+<h4 id="src.xo.filters.SNPFilter.result" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">result</span></code>
 
-<h4 id="src.xo.filters.SNPFilter.load_data" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">load_data</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span></code>
-
-</h4>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Read the SNP data from a CSV file.  Add two new columns (chromosome length and 
-relative SNP location) used in summaries. SNPs are grouped by chromosome ID and
-the groups are saved in an instance variable.</p>
-
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Parameters:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-              <b><code>fn</code></b>
-              –
-              <div class="doc-md-description">
-                <p>name of CSV file</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
-            <details class="quote">
-              <summary>Source code in <code>src/xo/filters.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Read the SNP data from a CSV file.  Add two new columns (chromosome length and </span>
-<span class="sd">    relative SNP location) used in summaries. SNPs are grouped by chromosome ID and</span>
-<span class="sd">    the groups are saved in an instance variable.</span>
-
-<span class="sd">    Arguments:</span>
-<span class="sd">      fn: name of CSV file</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Unnamed: 0&#39;</span><span class="p">:</span> <span class="s1">&#39;SNP&#39;</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="p">[</span><span class="s1">&#39;chr_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="o">.</span><span class="n">chromosome</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">chr_length</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="o">.</span><span class="n">position</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="o">.</span><span class="n">chr_length</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;chrom_id&#39;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h4 id="src.xo.filters.SNPFilter.has_chromosome_block" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">has_chromosome_block</span><span class="p">(</span><span class="n">chr_id</span><span class="p">)</span></code>
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h4>
 
 
     <div class="doc doc-contents ">
 
-        <p>Return True if the SNP data has blocks for a chromosome.</p>
-
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Parameters:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-              <b><code>chr_id</code></b>
-              –
-              <div class="doc-md-description">
-                <p>the name of the chromosome to look for.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
-            <details class="quote">
-              <summary>Source code in <code>src/xo/filters.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">has_chromosome_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chr_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Return True if the SNP data has blocks for a chromosome.</span>
-
-<span class="sd">    Arguments:</span>
-<span class="sd">      chr_id:  the name of the chromosome to look for.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">chr_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="o">.</span><span class="n">groups</span>
-</code></pre></div></td></tr></table></div>
-            </details>
+        <p>Filtered data</p>
     </div>
 
 </div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="src.xo.filters.SNPFilter.summary" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">summary</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Summary of filtered data</p>
+    </div>
+
+</div>
+
+
 
 <div class="doc doc-object doc-function">
 
 
 <h4 id="src.xo.filters.SNPFilter.apply" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">apply</span><span class="p">(</span><span class="n">chr_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">apply</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></code>
 
 </h4>
 
 
     <div class="doc doc-contents ">
 
-        <p>Apply the match and coverage criteria to a single chromosome, return the 
-filtered SNPs grouped by blocks and a summary table.</p>
-<p>If a chromosome ID is passed apply the filters to that chromosome only,
-otherwise use the complete set of all SNPs.</p>
-<p>The first step is to make a subset of SNPs that pass the coverage and match
-filters.  The resulting frame is then grouped by block.</p>
+        <p>Apply the filtering criteria to a set of SNPs.  The first step is to make a 
+subset of SNPs that pass the chromosome name, coverage, and match filters.<br />
+The resulting frame is then grouped by block.</p>
 <p>The second step makes a separate summary frame based on size and location of
 each block.  This frame is then filtered using the block size and block length
 filters.</p>
@@ -551,10 +495,10 @@ filters.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-              <b><code>chr_id</code></b>
+              <b><code>df</code></b>
               –
               <div class="doc-md-description">
-                <p>the ID of the chromosome to use</p>
+                <p>a data frame containing SNPs (including block IDs)</p>
               </div>
             </li>
         </ul>
@@ -574,9 +518,9 @@ filters.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-<b><code>groups</code></b>              –
+<b><code>res</code></b>              –
               <div class="doc-md-description">
-                <p>the blocks in the filtered chromosome</p>
+                <p>a frame containing the filtered data</p>
               </div>
             </li>
             <li>
@@ -592,11 +536,7 @@ filters.</p>
 </table>
             <details class="quote">
               <summary>Source code in <code>src/xo/filters.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
@@ -651,48 +591,37 @@ filters.</p>
 <span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
-<span class="normal">180</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chr_id</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">180</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Apply the match and coverage criteria to a single chromosome, return the </span>
-<span class="sd">    filtered SNPs grouped by blocks and a summary table.</span>
-
-<span class="sd">    If a chromosome ID is passed apply the filters to that chromosome only,</span>
-<span class="sd">    otherwise use the complete set of all SNPs.</span>
-
-<span class="sd">    The first step is to make a subset of SNPs that pass the coverage and match</span>
-<span class="sd">    filters.  The resulting frame is then grouped by block.</span>
+<span class="sd">    Apply the filtering criteria to a set of SNPs.  The first step is to make a </span>
+<span class="sd">    subset of SNPs that pass the chromosome name, coverage, and match filters.  </span>
+<span class="sd">    The resulting frame is then grouped by block.</span>
 
 <span class="sd">    The second step makes a separate summary frame based on size and location of</span>
 <span class="sd">    each block.  This frame is then filtered using the block size and block length</span>
 <span class="sd">    filters.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">      chr_id:  the ID of the chromosome to use</span>
+<span class="sd">      df:  a data frame containing SNPs (including block IDs)</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      groups:  the blocks in the filtered chromosome</span>
+<span class="sd">      res:  a frame containing the filtered data</span>
 <span class="sd">      summary:  a data frame with size, length, and location of each block</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">chr_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_snps</span><span class="o">.</span><span class="n">chrom_id</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_chromosome</span><span class="p">,</span><span class="n">s</span><span class="p">)))]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">chr_id</span><span class="p">)</span>
-
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Filtering </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> SNPs&#39;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;SNPFilter.apply </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> SNPs&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">chrom_id</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_chromosome</span><span class="p">,</span><span class="n">s</span><span class="p">)))]</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  chromosome:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> match </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_chromosome</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matched</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">base_geno</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">hmm_state1</span><span class="p">]</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> match&#39;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  match: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> have genome match&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">var_reads</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">ref_reads</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span><span class="p">]</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> have coverage &gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">var_reads</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">ref_reads</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span><span class="p">]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  coverage:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> have reads ≥ </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">chr_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">groups</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;chrom_id&#39;</span><span class="p">,</span> <span class="s1">&#39;blk_id&#39;</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">groups</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;blk_id&#39;</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span><span class="si">}</span><span class="s1"> groups&#39;</span><span class="p">)</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;chrom_id&#39;</span><span class="p">,</span><span class="s1">&#39;blk_id&#39;</span><span class="p">])</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Groupd into </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span><span class="si">}</span><span class="s1"> blocks&#39;</span><span class="p">)</span>
 
     <span class="n">sf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>
@@ -702,15 +631,493 @@ filters.</p>
         <span class="p">],</span>
         <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>
+
+
     <span class="n">min_size</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">blk_size</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_size</span>
     <span class="n">max_size</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">blk_size</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_size</span>
     <span class="n">min_len</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">blk_len</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_length</span>
     <span class="n">max_len</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">blk_len</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_length</span>
 
     <span class="n">sf</span> <span class="o">=</span> <span class="n">sf</span><span class="p">[</span><span class="n">min_size</span> <span class="o">&amp;</span> <span class="n">max_size</span> <span class="o">&amp;</span> <span class="n">min_len</span> <span class="o">&amp;</span> <span class="n">max_len</span><span class="p">]</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;summary has </span><span class="si">{</span><span class="n">sf</span><span class="o">.</span><span class="n">blk_size</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s1"> SNPs in </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span><span class="si">}</span><span class="s1"> blocks&#39;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Summary has </span><span class="si">{</span><span class="n">sf</span><span class="o">.</span><span class="n">blk_size</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s1"> SNPs in </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span><span class="si">}</span><span class="s1"> blocks&#39;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">groups</span><span class="p">,</span> <span class="n">sf</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">groups</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">sf</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.xo.filters.NCOFilter" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">NCOFilter</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>An NCOFilter applies additional filtering criteria to blocks of SNPs.<br />
+Pass the constructor a dictionary that has settings filtering critera.<br />
+Call a method named <code>apply</code> to filter a data set.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>min_z</code></b>
+              –
+              <div class="doc-md-description">
+                <p>homozygosity for type A blocks</p>
+              </div>
+            </li>
+            <li>
+              <b><code>delta_z</code></b>
+              –
+              <div class="doc-md-description">
+                <p>homozygosity for type B blocks</p>
+              </div>
+            </li>
+            <li>
+              <b><code>min_cover</code></b>
+              –
+              <div class="doc-md-description">
+                <p>minumum number of reads of each type</p>
+              </div>
+            </li>
+            <li>
+              <b><code>size</code></b>
+              –
+              <div class="doc-md-description">
+                <p>minimum block size</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+                  <details class="quote">
+                    <summary>Source code in <code>src/xo/filters.py</code></summary>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_min_z</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">post_min_z</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_delta_z</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">post_delta_z</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_min_cover</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">post_min_cover</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">post_block_size</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">filter_params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;min_z&#39;</span><span class="p">,</span><span class="s1">&#39;delta_z&#39;</span><span class="p">,</span> <span class="s1">&#39;min_cover&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">filter_params</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">:=</span> <span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="src.xo.filters.NCOFilter.min_z" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">min_z</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Minimum homozygosity for Type A blocks</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="src.xo.filters.NCOFilter.delta_z" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">delta_z</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Homozygosity range for Type B blocks</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="src.xo.filters.NCOFilter.min_cover" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">min_cover</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Minimum number of SNPs of each type</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="src.xo.filters.NCOFilter.size" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">size</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Minimum block size</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="src.xo.filters.NCOFilter.result" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">result</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Filtered data</p>
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.xo.filters.NCOFilter.apply" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">apply</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Apply the NCO filtering criteria to a set of SNPs in filtered blocks SNPs.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>df</code></b>
+              –
+              <div class="doc-md-description">
+                <p>a data frame of filtered SNPs</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>res</code></b>              –
+              <div class="doc-md-description">
+                <p>a frame containing the filtered data</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>src/xo/filters.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Apply the NCO filtering criteria to a set of SNPs in filtered blocks SNPs.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">      df:  a data frame of filtered SNPs</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      res:  a frame containing the filtered data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;NCOFilter.appy </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s1"> SNPs&#39;</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;chrom_id&#39;</span><span class="p">,</span><span class="s1">&#39;blk_id&#39;</span><span class="p">]):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="p">)</span><span class="si">}</span><span class="s1"> SNPs&#39;</span><span class="p">)</span>
+        <span class="n">block</span><span class="p">[</span><span class="s1">&#39;nco&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scan</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.xo.filters.NCOFilter._scan" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">_scan</span><span class="p">(</span><span class="n">block</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Scan a block for runs that have satisfy homozygosity requirements
+and have a minimum number of SNPs.  Add a column to a block to
+show which SNPs might be part of an NCO.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>src/xo/filters.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Scan a block for runs that have satisfy homozygosity requirements</span>
+<span class="sd">    and have a minimum number of SNPs.  Add a column to a block to</span>
+<span class="sd">    show which SNPs might be part of an NCO.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">next_interval</span><span class="p">():</span>
+        <span class="k">nonlocal</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;next_interval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;extend </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">j</span> <span class="o">-</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;long enough </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;restart&#39;</span><span class="p">)</span>
+                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">j</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;exit </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># block[&#39;nco&#39;] = 0</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="n">z</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">homozygosity</span>
+    <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">background</span> <span class="o">==</span> <span class="s1">&#39;CB4856&#39;</span><span class="p">:</span>
+        <span class="n">rr</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">ref_reads</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_z</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">rr</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cover</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rr</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">ref_reads</span>
+        <span class="n">vr</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">var_reads</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_z</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">rr</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cover</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">vr</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cover</span><span class="p">)</span>
+
+    <span class="n">col</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
+        <span class="n">next_interval</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;res </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;nco: </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">..</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">col</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="k">return</span> <span class="n">col</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
