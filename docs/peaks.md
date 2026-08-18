@@ -1,4 +1,4 @@
-# Peak Finder
+# Find Peaks (`xo peaks`)
 
 This script scans a chromosome to look for sequences of SNPs that are potentially associated with crossover or non-crossover events.
 

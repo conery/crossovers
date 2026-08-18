@@ -142,8 +142,8 @@ def init_cli():
 
     filter_parser = subparsers.add_parser('filter', help='apply filters to blocks')
     filter_parser.add_argument('--peaks', metavar='F', default=c.peaks_output_default, help='blocks saved by peaks.py')
-    filter_parser.add_argument('--crossovers', metavar='F', default=c.crossovers_default, help='file with crossover locations')
     filter_parser.add_argument('--output', metavar='F', default=c.filter_output_default, help='output file')
+    filter_parser.add_argument('--crossovers', metavar='F', default=c.crossovers_default, help='file with crossover locations')
     filter_parser.add_argument('--chromosomes', metavar='P', default=c.filter_chromosome_pattern, help='chromosome name pattern')
     filter_parser.add_argument('--size', metavar='N', nargs=2, type=int, default=c.filter_block_size, help='block size range (#SNPs)')
     filter_parser.add_argument('--length', metavar='N', nargs=2, type=int, default=c.filter_block_length, help='block length range (bp)')

@@ -51,7 +51,7 @@ The second line updates the chromosome ID.
     options:
       show_root_toc_entry: false
 
-### `summary_plot_cb`
+<!-- ### `summary_plot_cb`
 
 ::: src.xo.gui.PeakViewerApp.summary_plot_cb
     options:
@@ -61,5 +61,5 @@ The second line updates the chromosome ID.
 
 ::: src.xo.gui.PeakViewerApp.download_cb
     options:
-      show_root_toc_entry: false
+      show_root_toc_entry: false -->
 

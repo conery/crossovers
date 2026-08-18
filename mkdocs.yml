@@ -3,6 +3,9 @@ site_name: Crossover Explorer
 theme:
   name: "readthedocs"
 
+extra:
+  version: Version 0.5.1
+
 extra_css:
   - css/xo.css
   
@@ -14,9 +17,11 @@ nav:
   - "Home":
     - "Getting Started": index.md
   - "Running the Applications":
+    - api.md
     - peaks.md
     - gui.md
-    - vis.md
+    - filter.md
+    - post.md
   - "Developer":
     - "Source Directory": modules.md
     - "Modules":
@@ -31,4 +36,3 @@ nav:
         - "Chromosome Display": chromosomes.md
         - "Callback Functions": callbacks.md
         - "Creating and Starting the GUI": start_app.md
-      - "vis": vis_module.md

@@ -6,10 +6,11 @@ folder named `xo`, which is a Python module (since it has an `__init__.py` file)
 ```bash
 src
 └── xo
-    ├── __init__.py
+    ├── config.py
     ├── filters.py
     ├── gui.py
     ├── peaks.py
+    ├── post.py
     ├── vis.py
     └── xo.py
 ```
